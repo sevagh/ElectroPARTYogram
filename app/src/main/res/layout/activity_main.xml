@@ -13,11 +13,6 @@
         android:orientation="vertical"
         tools:context=".MainActivity">
 
-        <TextView
-            android:id="@+id/tvStatus"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
         <Button
             android:id="@+id/btnStartRecording"
             android:layout_width="match_parent"
@@ -42,58 +37,6 @@
             android:layout_marginBottom="8dp"
             android:text="2. Stop Recording" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:background="@android:color/darker_gray" />
-
-        <Button
-            android:id="@+id/btnStartPlayingFromRecording"
-            android:layout_width="match_parent"
-            android:layout_height="55dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="8dp"
-            android:text="3. Start Play from Recorded Stream" />
-
-        <Button
-            android:id="@+id/btnStopPlayingFromRecording"
-            android:layout_width="match_parent"
-            android:layout_height="55dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="8dp"
-            android:text="4. Stop Play from Recorded Stream" />
-
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:background="@android:color/darker_gray" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:background="@android:color/darker_gray" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:background="@android:color/darker_gray" />
 
         <Button
             android:id="@+id/btnReset"

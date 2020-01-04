@@ -20,7 +20,6 @@ add_library( # Sets the name of the library.
         SoundRecording.cpp
         AudioEngine.cpp
         RecordingCallback.cpp
-        PlayingCallback.cpp
         jni_bridge.cpp)
 
 # Searches for a specified prebuilt library and stores the path as a

@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Animals-as-Meter</string>
 
-    <string name="need_record_audio_permission">"This app needs RECORD_AUDIO permission"</string>
+    <string name="record_audio_rationale">"Animals-as-Meter requires audio recording permission to work"</string>
 
 </resources>

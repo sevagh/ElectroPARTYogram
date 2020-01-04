@@ -39,31 +39,6 @@ void AudioEngine::stopRecording() {
 
 }
 
-void AudioEngine::startPlayingRecordedStream() {
-
-    LOGD(TAG, "startPlayingRecordedStream(): ");
-
-    openPlaybackStreamFromRecordedStreamParameters();
-
-    if (mPlaybackStream) {
-        startStream(mPlaybackStream);
-    } else {
-        LOGE(TAG, "startPlayingRecordedStream(): Failed to create recording (%p) stream", mRecordingStream);
-        closeStream(mPlaybackStream);
-    }
-
-}
-
-void AudioEngine::stopPlayingRecordedStream() {
-
-    LOGD(TAG, "stopPlayingRecordedStream(): ");
-
-    stopStream(mPlaybackStream);
-    closeStream(mPlaybackStream);
-    mSoundRecording.setReadPositionToStart();
-
-}
-
 void AudioEngine::openRecordingStream() {
 
     LOGD(TAG, "openRecordingStream(): ");
@@ -75,8 +50,8 @@ void AudioEngine::openRecordingStream() {
     oboe::Result result = builder.openStream(&mRecordingStream);
     if (result == oboe::Result::OK && mRecordingStream) {
         assert(mRecordingStream->getChannelCount() == mInputChannelCount);
-//        assert(mRecordingStream->getSampleRate() == mSampleRate);
-//        assert(mRecordingStream->getFormat() == mFormat);
+        assert(mRecordingStream->getSampleRate() == mSampleRate);
+        assert(mRecordingStream->getFormat() == mFormat);
 
         mSampleRate = mRecordingStream->getSampleRate();
         mFormat = mRecordingStream->getFormat();
@@ -88,39 +63,6 @@ void AudioEngine::openRecordingStream() {
 
     } else {
         LOGE(TAG, "Failed to create recording stream. Error: %s",
-             oboe::convertToText(result));
-    }
-
-}
-
-void AudioEngine::openPlaybackStreamFromRecordedStreamParameters() {
-
-    LOGD(TAG, "openPlaybackStreamFromRecordedStreamParameters(): ");
-
-    oboe::AudioStreamBuilder builder;
-
-    setUpPlaybackStreamParameters(&builder, mAudioApi, mFormat, &playingCallback,
-            mPlaybackDeviceId, mSampleRate, mOutputChannelCount);
-
-    oboe::Result result = builder.openStream(&mPlaybackStream);
-    if (result == oboe::Result::OK && mPlaybackStream) {
-        assert(mPlaybackStream->getChannelCount() == mOutputChannelCount);
-//        assert(mPlaybackStream->getSampleRate() == mSampleRate);
-        assert(mPlaybackStream->getFormat() == mFormat);
-
-        mSampleRate = mPlaybackStream->getSampleRate();
-        LOGV(TAG, "openPlaybackStreamFromRecordedStreamParameters(): mSampleRate = ");
-        LOGV(TAG, std::to_string(mSampleRate).c_str());
-
-        mFramesPerBurst = mPlaybackStream->getFramesPerBurst();
-        LOGV(TAG, "openPlaybackStreamFromRecordedStreamParameters(): mFramesPerBurst = ");
-        LOGV(TAG, std::to_string(mFramesPerBurst).c_str());
-
-        // Set the buffer size to the burst size - this will give us the minimum possible latency
-        mPlaybackStream->setBufferSizeInFrames(mFramesPerBurst);
-
-    } else {
-        LOGE(TAG, "openPlaybackStreamFromRecordedStreamParameters(): Failed to create recording stream. Error: %s",
              oboe::convertToText(result));
     }
 
@@ -188,23 +130,3 @@ oboe::AudioStreamBuilder *AudioEngine::setUpRecordingStreamParameters(oboe::Audi
             ->setChannelCount(mInputChannelCount);
     return builder;
 }
-
-oboe::AudioStreamBuilder *AudioEngine::setUpPlaybackStreamParameters(oboe::AudioStreamBuilder *builder,
-        oboe::AudioApi audioApi, oboe::AudioFormat audioFormat, oboe::AudioStreamCallback *audioStreamCallback,
-        int32_t deviceId, int32_t sampleRate, int channelCount) {
-
-    LOGD(TAG, "setUpPlaybackStreamParameters(): ");
-
-    builder->setAudioApi(audioApi)
-            ->setFormat(audioFormat)
-            ->setSharingMode(oboe::SharingMode::Exclusive)
-            ->setPerformanceMode(oboe::PerformanceMode::LowLatency)
-            ->setCallback(audioStreamCallback)
-            ->setDeviceId(deviceId)
-            ->setDirection(oboe::Direction::Output)
-            ->setSampleRate(sampleRate)
-            ->setChannelCount(channelCount);
-    return builder;
-
-}
-

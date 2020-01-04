@@ -17,7 +17,6 @@
 #include <sstream>
 #include "SoundRecording.h"
 #include "logging_macros.h"
-#include "Utils.h"
 
 
 constexpr int kMaxSamples = 480000; // 10s of audio data @ 48kHz

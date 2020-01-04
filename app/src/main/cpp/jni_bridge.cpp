@@ -60,32 +60,4 @@ Java_xyz_sevag_animals_1as_1meter_AudioEngine_stopRecording(JNIEnv *env, jclass)
     audioEngine->stopRecording();
 
 }
-
-JNIEXPORT void JNICALL
-Java_xyz_sevag_animals_1as_1meter_AudioEngine_startPlayingRecordedStream(JNIEnv *env, jclass) {
-
-    LOGD(TAG, "startPlayingRecordedStream(): ");
-
-    if (audioEngine == nullptr) {
-        LOGE(TAG, "audioEngine is null, you must call create() method before calling this method");
-        return;
-    }
-
-    audioEngine->startPlayingRecordedStream();
-
-}
-
-JNIEXPORT void JNICALL
-Java_xyz_sevag_animals_1as_1meter_AudioEngine_stopPlayingRecordedStream(JNIEnv *env, jclass) {
-
-    LOGD(TAG, "stopPlayingRecordedStream(): ");
-
-    if (audioEngine == nullptr) {
-        LOGE(TAG, "audioEngine is null, you must call create() method before calling this method");
-        return;
-    }
-
-    audioEngine->stopPlayingRecordedStream();
-
-}
 };
