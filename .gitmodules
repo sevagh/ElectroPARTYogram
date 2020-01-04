@@ -1,3 +1,6 @@
 [submodule "app/src/main/cpp/oboe"]
 	path = app/src/main/cpp/oboe
 	url = https://github.com/google/oboe
+[submodule "app/src/main/cpp/ffts"]
+	path = app/src/main/cpp/ffts
+	url = https://github.com/sevagh/ffts

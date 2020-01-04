@@ -11,7 +11,6 @@
 #include "logging_macros.h"
 #include "RecordingCallback.h"
 
-
 class AudioEngine {
 
 public:
@@ -24,13 +23,12 @@ public:
     void stopRecording();
 
 private:
-
     const char* TAG = "AudioEngine:: %s";
 
     int32_t mRecordingDeviceId = oboe::VoiceRecognition;
 
     oboe::AudioFormat mFormat = oboe::AudioFormat::I16;
-    int32_t mSampleRate = oboe::kUnspecified;
+    const int32_t mSampleRate = 48000;
     int32_t mFramesPerBurst;
     int32_t mInputChannelCount = oboe::ChannelCount::Stereo;
     int32_t mOutputChannelCount = oboe::ChannelCount::Stereo;
