@@ -5,7 +5,7 @@ class AudioEngine {
     companion object {
 
         init {
-            System.loadLibrary("aam")
+            System.loadLibrary("animals_as_meter")
         }
 
         // Native methods

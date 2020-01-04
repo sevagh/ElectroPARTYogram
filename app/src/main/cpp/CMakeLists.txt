@@ -10,8 +10,10 @@ cmake_minimum_required(VERSION 3.4.1)
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
+
+
 add_library( # Sets the name of the library.
-        aam
+        animals_as_meter
 
         # Sets the library as a shared library.
         SHARED
@@ -51,7 +53,7 @@ include_directories(${FFTS_DIR}/include)
 # build script, prebuilt third-party libraries, or system libraries.
 
 target_link_libraries( # Specifies the target library.
-        aam
+        animals_as_meter
         oboe
         ffts
 

@@ -1,7 +1,12 @@
 # Animals-as-Meter
 
-Animals-as-Meter targets Android API version >=24 for [Vulkan](https://developer.android.com/ndk/guides/graphics/getting-started.html) and [Oboe](https://github.com/google/oboe), and [NDK >=r21](https://developer.android.com/ndk/guides/cpu-arm-neon) for NEON SIMD instruction support and OpenMP.
+Animals-as-Meter targets Android API version >=24 for [Vulkan](https://developer.android.com/ndk/guides/graphics/getting-started.html) and [Oboe](https://github.com/google/oboe), and [NDK >=r21](https://developer.android.com/ndk/guides/cpu-arm-neon) for NEON SIMD instruction support and OpenMP. The only ABI targeted is aarch64/ARM v8 for default NEON support. All development was done on my Nokia 6.1.
 
-oboe (release 1.3-stable) is checked out as a git submodule under app/src/main/cpp [as recommended](https://github.com/google/oboe/blob/master/docs/GettingStarted.md).
+Android Studio is used for all development.
 
-[ffts](https://github.com/anthonix/ffts) (master branch) is checked out as a git submodule under app/src/main/cpp.
+### C++ dependencies
+
+Dependencies are checked out as git submodules under app/src/main/cpp:
+
+* [oboe](https://github.com/google/oboe) (release 1.3-stable)
+* [ffts](https://github.com/sevagh/ffts) (my fork with some compatibility fixes for Android arm64-v8)
