@@ -28,7 +28,6 @@ add_library( # Sets the name of the library.
         RecordingCallback.cpp
         VulkanMain.cpp
         AndroidMain.cpp
-        jni_bridge.cpp
         ${WRAPPER_DIR}/vulkan_wrapper.cpp
         )
 

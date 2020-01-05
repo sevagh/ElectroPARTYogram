@@ -6,6 +6,7 @@
 #include <oboe/AudioStream.h>
 #include "SoundRecording.h"
 #include "logging_macros.h"
+#include "DrawParams.h"
 
 #ifndef MODULE_NAME
 #define MODULE_NAME  "RecordingCallback"
@@ -17,6 +18,7 @@ class RecordingCallback : public oboe::AudioStreamCallback {
 private:
     const char* TAG = "RecordingCallback:: %s";
     SoundRecording* mSoundRecording = nullptr;
+    DrawParams mDrawData{};
 
 public:
     RecordingCallback() = default;
@@ -24,6 +26,8 @@ public:
     explicit RecordingCallback(SoundRecording* recording) {
         mSoundRecording = recording;
     }
+
+    const DrawParams& GetDrawParams();
 
     oboe::DataCallbackResult
     onAudioReady(oboe::AudioStream *audioStream, void *audioData, int32_t numFrames);

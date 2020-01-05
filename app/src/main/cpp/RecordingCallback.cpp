@@ -12,5 +12,16 @@ RecordingCallback::processRecordingFrames(oboe::AudioStream *audioStream, int16_
     LOGD(TAG, "processRecordingFrames(): ");
     int32_t framesWritten = mSoundRecording->write(audioData, numFrames);
     LOGD(TAG, "processRecordingFrames(): ", framesWritten);
+
+    // do some signal processing here
+    // beat detection, pitch detection, etc.
+    // now, how to ship the data back to Vulkan?
+    mDrawData.streak++;
+
     return oboe::DataCallbackResult::Continue;
+}
+
+const DrawParams&
+RecordingCallback::GetDrawParams(){
+    return mDrawData;
 }

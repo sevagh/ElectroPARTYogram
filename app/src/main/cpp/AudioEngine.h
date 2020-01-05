@@ -8,6 +8,7 @@
 #include <oboe/Definitions.h>
 #include <oboe/AudioStream.h>
 #include "SoundRecording.h"
+#include "DrawParams.h"
 #include "logging_macros.h"
 #include "RecordingCallback.h"
 
@@ -21,10 +22,13 @@ public:
 
     void startRecording();
     void stopRecording();
+    const DrawParams& GetDrawParams();
 
 private:
     const char* TAG = "AudioEngine:: %s";
 
+    // VoiceRecognition is the lowest latency on any device
+    // https://github.com/google/oboe/blob/master/docs/FullGuide.md
     int32_t mRecordingDeviceId = oboe::VoiceRecognition;
 
     oboe::AudioFormat mFormat = oboe::AudioFormat::I16;

@@ -14,6 +14,7 @@
 #include <android/log.h>
 #include <android_native_app_glue.h>
 #include "VulkanMain.h"
+#include "AudioEngine.h"
 
 // Process the next main command.
 void handle_cmd(android_app* app, int32_t cmd) {
@@ -33,13 +34,14 @@ void handle_cmd(android_app* app, int32_t cmd) {
 }
 
 void android_main(struct android_app* app) {
-
     // Set the callback to process system events
     app->onAppCmd = handle_cmd;
 
     // Used to poll the events in the main loop
     int events;
     android_poll_source* source;
+    AudioEngine audioEngine;
+    audioEngine.startRecording();
 
     // Main loop
     do {
@@ -48,10 +50,14 @@ void android_main(struct android_app* app) {
             if (source != NULL) source->process(app, source);
         }
 
+        auto drawParams = audioEngine.GetDrawParams();
+
         // render if vulkan is ready
         if (IsVulkanReady()) {
-            VulkanDrawFrame();
+            VulkanDrawFrame(drawParams);
         }
     } while (app->destroyRequested == 0);
+
+    audioEngine.stopRecording();
 }
 

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "VulkanMain.h"
+#include "DrawParams.h"
 #include <android/log.h>
 #include <android_native_app_glue.h>
 #include <cassert>
@@ -500,7 +501,7 @@ void DeleteVulkan(void) {
 }
 
 // Draw one frame
-bool VulkanDrawFrame(void) {
+bool VulkanDrawFrame(const DrawParams& drawParams) {
     uint32_t nextIndex;
     // Get the framebuffer index we should draw in
     CALL_VK(vkAcquireNextImageKHR(device.device_, swapchain.swapchain_,
@@ -522,7 +523,7 @@ bool VulkanDrawFrame(void) {
     CALL_VK(
             vkWaitForFences(device.device_, 1, &render.fence_, VK_TRUE, 100000000));
 
-    LOGI("Drawing frames......");
+    LOGI("Drawing frames...... %d", drawParams.streak);
 
     VkResult result;
     VkPresentInfoKHR presentInfo{

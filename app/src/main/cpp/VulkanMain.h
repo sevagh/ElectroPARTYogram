@@ -15,6 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include <android_native_app_glue.h>
+#include "DrawParams.h"
 
 // Initialize vulkan device context
 // after return, vulkan is ready to draw
@@ -27,6 +28,6 @@ void DeleteVulkan(void);
 bool IsVulkanReady(void);
 
 // Ask Vulkan to Render a frame
-bool VulkanDrawFrame(void);
+bool VulkanDrawFrame(const DrawParams&);
 
 #endif //ANIMALS_AS_METER_VULKANMAIN_H

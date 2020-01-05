@@ -116,3 +116,8 @@ oboe::AudioStreamBuilder *AudioEngine::setUpRecordingStreamParameters(oboe::Audi
             ->setChannelCount(mInputChannelCount);
     return builder;
 }
+
+const DrawParams&
+AudioEngine::GetDrawParams(){
+    return recordingCallback.GetDrawParams();
+}
