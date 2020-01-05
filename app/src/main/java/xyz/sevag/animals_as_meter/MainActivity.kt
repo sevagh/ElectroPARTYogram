@@ -1,14 +1,24 @@
 package xyz.sevag.animals_as_meter
 
 import android.Manifest
+import android.app.NativeActivity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.livinglifetechway.quickpermissions.annotations.WithPermissions
-import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity()  {
+
+class MainActivity : AppCompatActivity() {
+    companion object {
+        init {
+            System.loadLibrary("animals_as_meter")
+        }
+
+        private val TAG = MainActivity::class.java.simpleName
+    }
+
     var streamStarted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,6 +29,8 @@ class MainActivity : AppCompatActivity()  {
 
         verifyRecordPermissions()
         AudioEngine.create()
+        val intent = Intent(this, NativeActivity::class.java)
+        startActivity(intent)
     }
 
     override fun onResume() {
@@ -63,8 +75,5 @@ class MainActivity : AppCompatActivity()  {
     fun verifyRecordPermissions() {
         Toast.makeText(this, "Permissions granted", Toast.LENGTH_SHORT).show()
     }
-
-    companion object {
-        private val TAG = MainActivity::class.java.simpleName
-    }
 }
+

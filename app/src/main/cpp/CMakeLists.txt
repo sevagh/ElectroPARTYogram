@@ -5,12 +5,16 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
+set(APP_GLUE_DIR ${ANDROID_NDK}/sources/android/native_app_glue)
+include_directories(${APP_GLUE_DIR})
+add_library(app-glue STATIC ${APP_GLUE_DIR}/android_native_app_glue.c)
+
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
-
+set(WRAPPER_DIR ./vulkan_wrapper)
 
 add_library( # Sets the name of the library.
         animals_as_meter
@@ -22,7 +26,13 @@ add_library( # Sets the name of the library.
         SoundRecording.cpp
         AudioEngine.cpp
         RecordingCallback.cpp
-        jni_bridge.cpp)
+        VulkanMain.cpp
+        AndroidMain.cpp
+        jni_bridge.cpp
+        ${WRAPPER_DIR}/vulkan_wrapper.cpp
+        )
+
+include_directories(${WRAPPER_DIR})
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -52,10 +62,15 @@ include_directories(${FFTS_DIR}/include)
 # can link multiple libraries, such as libraries you define in this
 # build script, prebuilt third-party libraries, or system libraries.
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -DVK_USE_PLATFORM_ANDROID_KHR")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
+
 target_link_libraries( # Specifies the target library.
         animals_as_meter
         oboe
         ffts
+        app-glue
+        android
 
         # Links the target library to the log library
         # included in the NDK.
