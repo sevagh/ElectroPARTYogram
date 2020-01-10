@@ -1,5 +1,5 @@
-#ifndef OBOE_RECORDER_RECORDINGCALLBACK_H
-#define OBOE_RECORDER_RECORDINGCALLBACK_H
+#ifndef ANIMALS_AS_METER_RECORDINGCALLBACK_H
+#define ANIMALS_AS_METER_RECORDINGCALLBACK_H
 
 
 #include <oboe/Definitions.h>
@@ -36,4 +36,4 @@ public:
     processRecordingFrames(oboe::AudioStream *audioStream, int16_t *audioData, int32_t numFrames);
 };
 
-#endif //OBOE_RECORDER_RECORDINGCALLBACK_H
+#endif //ANIMALS_AS_METER_RECORDINGCALLBACK_H

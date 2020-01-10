@@ -1,5 +1,5 @@
-#ifndef OBOE_RECORDER_AUDIOENGINE_H
-#define OBOE_RECORDER_AUDIOENGINE_H
+#ifndef ANIMALS_AS_METER_AUDIOENGINE_H
+#define ANIMALS_AS_METER_AUDIOENGINE_H
 
 #ifndef MODULE_NAME
 #define MODULE_NAME  "AudioEngine"
@@ -51,4 +51,4 @@ private:
     oboe::AudioStreamBuilder* setUpRecordingStreamParameters(oboe::AudioStreamBuilder* builder);
 };
 
-#endif //OBOE_RECORDER_AUDIOENGINE_H
+#endif //ANIMALS_AS_METER_AUDIOENGINE_H

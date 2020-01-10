@@ -28,6 +28,8 @@ add_library( # Sets the name of the library.
         RecordingCallback.cpp
         VulkanMain.cpp
         AndroidMain.cpp
+        Obtain.cpp
+        HammingWindow.cpp
         ${WRAPPER_DIR}/vulkan_wrapper.cpp
         )
 
