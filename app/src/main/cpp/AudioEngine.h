@@ -18,7 +18,7 @@ public:
     AudioEngine();
     ~AudioEngine();
 
-    RecordingCallback recordingCallback = RecordingCallback(&mSoundRecording);
+    RecordingCallback recordingCallback = RecordingCallback(&mSoundRecording, mSampleRate);
 
     void startRecording();
     void stopRecording();
@@ -31,7 +31,7 @@ private:
     // https://github.com/google/oboe/blob/master/docs/FullGuide.md
     int32_t mRecordingDeviceId = oboe::VoiceRecognition;
 
-    oboe::AudioFormat mFormat = oboe::AudioFormat::I16;
+    oboe::AudioFormat mFormat = oboe::AudioFormat::Float;
     const int32_t mSampleRate = 48000;
     int32_t mFramesPerBurst;
     int32_t mInputChannelCount = oboe::ChannelCount::Stereo;

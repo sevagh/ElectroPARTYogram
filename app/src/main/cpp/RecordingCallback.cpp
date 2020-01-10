@@ -3,18 +3,20 @@
 oboe::DataCallbackResult
 RecordingCallback::onAudioReady(oboe::AudioStream *audioStream, void *audioData, int32_t numFrames)
 {
-    return processRecordingFrames(audioStream, static_cast<int16_t *>(audioData), numFrames * audioStream->getChannelCount());
+    return processRecordingFrames(audioStream, static_cast<float *>(audioData), numFrames * audioStream->getChannelCount());
 }
 
 oboe::DataCallbackResult
-RecordingCallback::processRecordingFrames(oboe::AudioStream *audioStream, int16_t *audioData, int32_t numFrames)
+RecordingCallback::processRecordingFrames(oboe::AudioStream *audioStream, float *audioData, int32_t numFrames)
 {
-    LOGD(TAG, "processRecordingFrames(): ");
-    int32_t framesWritten = mSoundRecording->write(audioData, numFrames);
-    LOGD(TAG, "processRecordingFrames(): ", framesWritten);
+    // necessary assumption for the correct functioning of the app
+    // see Obtain.cpp for comments on how the accumulator buffer is filled with Oboe callbacks
+    assert(numFrames < obtain::Obtain::WindowSize);
 
     // do some signal processing here
     // beat detection, pitch detection, etc.
+    obtainBeatDetector.processData(audioData, numFrames);
+
     // now, how to ship the data back to Vulkan?
     mDrawData.streak++;
 

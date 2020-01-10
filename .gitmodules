@@ -4,3 +4,6 @@
 [submodule "app/src/main/cpp/ffts"]
 	path = app/src/main/cpp/ffts
 	url = https://github.com/sevagh/ffts
+[submodule "app/src/main/cpp/math-neon"]
+	path = app/src/main/cpp/math-neon
+	url = https://github.com/sevagh/math-neon.git
