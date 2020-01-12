@@ -4,7 +4,7 @@
 #include <oboe/Definitions.h>
 #include <vector>
 #include <complex>
-#include <ffts.h>
+#include "NE10.h"
 
 /*
  * A from-scratch implementation of the OBTAIN beat tracking algorithm
@@ -34,14 +34,12 @@ private:
     static constexpr int HopSize = 128; // creates an overlap ratio of 87.5 i.e. (1024-128)/1024
     static constexpr int NoiseCancellationThreshold = 74; // threshold values below 74dB to 0
     std::vector<float> sampleAccumulator;
-    std::vector<std::complex<float>> fftResult;
+    std::vector<ne10_fft_cpx_float32_t> fftResult;
 
-    ffts_plan_t* fftPlan  = ffts_init_1d_real(WindowSize, FFTS_FORWARD);
+    ne10_fft_r2c_cfg_float32_t fftCfg;
 
     int iSampleRate; // initial audio sample rate
     int eSampleRate; // effective sample rate i.e. iSampleRate/WindowSize
-
-    ~Obtain();
 
 public:
     static constexpr int WindowSize = 1024;
@@ -50,8 +48,11 @@ public:
         iSampleRate(sampleRate),
         eSampleRate(sampleRate/WindowSize),
         sampleAccumulator(2*WindowSize),
-        fftResult(WindowSize/2 + 1) // https://github.com/sevagh/ffts/blob/master/include/ffts.h#L88
+        fftResult(WindowSize/2 + 1), // https://github.com/sevagh/ffts/blob/master/include/ffts.h#L88
+        fftCfg(ne10_fft_alloc_r2c_float32(WindowSize))
             {}
+
+    ~Obtain();
 
     void processData(float *audioData, int32_t numSamples);
 };

@@ -9,4 +9,4 @@ Android Studio is used for all development.
 Dependencies are checked out as git submodules under app/src/main/cpp:
 
 * [oboe](https://github.com/google/oboe) (release 1.3-stable)
-* [ffts](https://github.com/sevagh/ffts) (my fork with some compatibility fixes for Android arm64-v8)
+* Ne10 (fill this)

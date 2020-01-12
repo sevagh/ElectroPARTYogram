@@ -15,6 +15,7 @@
 #include <android_native_app_glue.h>
 #include "VulkanMain.h"
 #include "AudioEngine.h"
+#include "NE10.h"
 
 // Process the next main command.
 void handle_cmd(android_app* app, int32_t cmd) {
@@ -42,6 +43,8 @@ void android_main(struct android_app* app) {
     android_poll_source* source;
     AudioEngine audioEngine;
     audioEngine.startRecording();
+
+    assert(ne10_init() == NE10_OK);
 
     // Main loop
     do {

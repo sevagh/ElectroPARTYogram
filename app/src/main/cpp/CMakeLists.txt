@@ -56,11 +56,13 @@ set (OBOE_DIR ./oboe)
 add_subdirectory(${OBOE_DIR} ./oboe)
 include_directories(${OBOE_DIR}/include)
 
-# FFTS
-set (ENABLE_NEON ON)
-set (FFTS_DIR ./ffts)
-add_subdirectory(${FFTS_DIR} ./ffts)
-include_directories(${FFTS_DIR}/include)
+# Ne10 for FFT
+set(CMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake)
+set(NE10_ANDROID_TARGET_ARCH "aarch64")
+set(ANDROID_API_LEVEL 24)
+set (NE10_DIR ./Ne10)
+add_subdirectory(${NE10_DIR} ./Ne10)
+include_directories(${NE10_DIR}/inc)
 
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
@@ -72,7 +74,7 @@ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_o
 target_link_libraries( # Specifies the target library.
         animals_as_meter
         oboe
-        ffts
+        NE10
         app-glue
         android
 

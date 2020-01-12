@@ -2,7 +2,8 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/app/src/main/cpp/ffts" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/cpp/Ne10" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/cpp/math-neon" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/app/src/main/cpp/oboe" vcs="Git" />
   </component>
 </project>

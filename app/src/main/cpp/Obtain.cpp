@@ -1,6 +1,6 @@
 #include "Obtain.h"
 #include "logging_macros.h"
-#include "ffts.h"
+#include "NE10.h"
 //#include <complex.h>
 
 void obtain::Obtain::processData(float *audioData, int32_t numSamples) {
@@ -11,11 +11,12 @@ void obtain::Obtain::processData(float *audioData, int32_t numSamples) {
     LOGI("OBTAIN process Data, len: %ld", sampleAccumulator.size());
 
     // OBTAIN processing code here
-    // the data we care about is in sampleAccumulator[0:WindowSize], while [WindowSize:] contains
+
+    // the window we care about is in sampleAccumulator[0:WindowSize], while [WindowSize:] contains
     // leftover samples to be computed in the next window
 
     // apply FFT on each window
-    ffts_execute(fftPlan, sampleAccumulator.data(), fftResult.data()); // causing crashes
+    ne10_fft_r2c_1d_float32_neon(fftResult.data(), sampleAccumulator.data(), fftCfg);
 
     // process it and then shift the array HopSize to the left
     // this should create a rotating buffer of WindowSize - a few initial runs will have incomplete
@@ -23,6 +24,6 @@ void obtain::Obtain::processData(float *audioData, int32_t numSamples) {
     std::copy(sampleAccumulator.begin()+HopSize, sampleAccumulator.end(), sampleAccumulator.begin());
 }
 
-void obtain::Obtain::~Obtain() {
-    ffts_free(fftPlan);
+obtain::Obtain::~Obtain() {
+    ne10_fft_destroy_r2c_float32(fftCfg);
 }
