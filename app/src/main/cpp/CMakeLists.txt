@@ -15,8 +15,6 @@ add_library(app-glue STATIC ${APP_GLUE_DIR}/android_native_app_glue.c)
 # Gradle automatically packages shared libraries with your APK.
 
 set(WRAPPER_DIR ./vulkan_wrapper)
-set(MATH_NEON_DIR ./math-neon)
-file(GLOB MATH_NEON_SRC_FILES ${MATH_NEON_DIR}/*.c)
 
 add_library( # Sets the name of the library.
         animals_as_meter
@@ -31,12 +29,11 @@ add_library( # Sets the name of the library.
         VulkanMain.cpp
         AndroidMain.cpp
         Obtain.cpp
-        ${MATH_NEON_SRC_FILES}
+        MathNeon.cpp
         ${WRAPPER_DIR}/vulkan_wrapper.cpp
         )
 
 include_directories(${WRAPPER_DIR})
-include_directories(${MATH_NEON_DIR})
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by

@@ -1,9 +1,6 @@
 [submodule "app/src/main/cpp/oboe"]
 	path = app/src/main/cpp/oboe
 	url = https://github.com/google/oboe
-[submodule "app/src/main/cpp/math-neon"]
-	path = app/src/main/cpp/math-neon
-	url = https://github.com/sevagh/math-neon.git
 [submodule "app/src/main/cpp/Ne10"]
 	path = app/src/main/cpp/Ne10
 	url = https://github.com/projectNe10/Ne10.git

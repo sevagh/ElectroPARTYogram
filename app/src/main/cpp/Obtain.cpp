@@ -1,7 +1,8 @@
 #include "Obtain.h"
 #include "logging_macros.h"
 #include "NE10.h"
-//#include <complex.h>
+#include <algorithm>
+#include "MathNeon.h"
 
 void obtain::Obtain::processData(float *audioData, int32_t numSamples) {
     // only fill a fresh HopSize to keep 87.5% overlap with the previous runs
@@ -17,6 +18,16 @@ void obtain::Obtain::processData(float *audioData, int32_t numSamples) {
 
     // apply FFT on each window
     ne10_fft_r2c_1d_float32_neon(fftResult.data(), sampleAccumulator.data(), fftCfg);
+
+    math_neon::Complex2Magnitude(fftResult, fftResultMags);
+
+    for (size_t i = 0; i < fftResultMags.size(); ++i) {
+        LOGI("FFT magnitude: %f", fftResultMags[i]);
+    }
+
+    // find the max of the FFT for normalization purposes
+
+    // normalize the FFT
 
     // process it and then shift the array HopSize to the left
     // this should create a rotating buffer of WindowSize - a few initial runs will have incomplete

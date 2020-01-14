@@ -21,8 +21,6 @@ private:
     obtain::Obtain obtainBeatDetector;
 
 public:
-    RecordingCallback() = default;
-
     explicit RecordingCallback(SoundRecording* recording, int32_t sampleRate) :
         obtainBeatDetector(obtain::Obtain(sampleRate)) {
         mSoundRecording = recording;
