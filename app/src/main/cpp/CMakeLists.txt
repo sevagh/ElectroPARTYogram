@@ -14,6 +14,8 @@ add_library(app-glue STATIC ${APP_GLUE_DIR}/android_native_app_glue.c)
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
+set(ANDROID_ABI arm64-v8a)
+
 set(WRAPPER_DIR ./vulkan_wrapper)
 
 add_library( # Sets the name of the library.
