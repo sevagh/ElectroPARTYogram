@@ -1,4 +1,6 @@
 #include "RecordingCallback.h"
+#include <thread>
+#include <__threading_support>
 
 oboe::DataCallbackResult
 RecordingCallback::onAudioReady(oboe::AudioStream *audioStream, void *audioData, int32_t numFrames)
@@ -11,13 +13,18 @@ RecordingCallback::processRecordingFrames(oboe::AudioStream *audioStream, float 
 {
     // necessary assumption for the correct functioning of the app
     // see BeatTracker.cpp for comments on how the accumulator buffer is filled with Oboe callbacks
-    assert(numFrames < obtain::BeatTracker::WindowSize);
+    assert(numFrames < btrack::BeatTracker::FrameSize);
 
-    // do some signal processing here
-    // beat detection, pitch detection, etc.
-    obtainBeatDetector.processData(audioData, numFrames);
+    // perform beat detection on the audio data in the background
+    std::thread(&btrack::BeatTracker::accumulateFrame,
+                std::ref(beatDetector),
+                std::ref(audioData),
+                std::ref(numFrames)).detach();
 
-    // now, how to ship the data back to Vulkan?
+    // get something back from beatDetector - it should be async and data should probably
+    // be from a previous run
+
+    // ensure Vulkan can get the new draw data
     mDrawData.streak++;
 
     return oboe::DataCallbackResult::Continue;

@@ -18,11 +18,11 @@ private:
     const char* TAG = "RecordingCallback:: %s";
     SoundRecording* mSoundRecording = nullptr;
     DrawParams mDrawData{};
-    obtain::BeatTracker obtainBeatDetector;
+    btrack::BeatTracker beatDetector;
 
 public:
     explicit RecordingCallback(SoundRecording* recording, int32_t sampleRate) :
-        obtainBeatDetector(obtain::BeatTracker(sampleRate)) {
+        beatDetector(btrack::BeatTracker(sampleRate)) {
         mSoundRecording = recording;
     }
 
