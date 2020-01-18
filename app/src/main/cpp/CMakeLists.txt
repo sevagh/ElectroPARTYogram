@@ -30,8 +30,9 @@ add_library( # Sets the name of the library.
         RecordingCallback.cpp
         VulkanMain.cpp
         AndroidMain.cpp
-        Obtain.cpp
+        BeatTracker.cpp
         MathNeon.cpp
+        MathNeonLog10.cpp
         ${WRAPPER_DIR}/vulkan_wrapper.cpp
         )
 

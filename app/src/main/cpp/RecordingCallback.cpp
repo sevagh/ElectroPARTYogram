@@ -10,8 +10,8 @@ oboe::DataCallbackResult
 RecordingCallback::processRecordingFrames(oboe::AudioStream *audioStream, float *audioData, int32_t numFrames)
 {
     // necessary assumption for the correct functioning of the app
-    // see Obtain.cpp for comments on how the accumulator buffer is filled with Oboe callbacks
-    assert(numFrames < obtain::Obtain::WindowSize);
+    // see BeatTracker.cpp for comments on how the accumulator buffer is filled with Oboe callbacks
+    assert(numFrames < obtain::BeatTracker::WindowSize);
 
     // do some signal processing here
     // beat detection, pitch detection, etc.

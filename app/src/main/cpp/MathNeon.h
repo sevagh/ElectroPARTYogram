@@ -3,6 +3,7 @@
 
 #include "NE10.h"
 #include <vector>
+#include <arm_neon.h>
 
 namespace math_neon {
     void
@@ -10,6 +11,12 @@ namespace math_neon {
 
     void
     NormalizeByMax(std::vector<float>&);
+
+    void
+    ThresholdUnder(std::vector<float>&, float);
+
+    float32x4_t
+    log10(float32x4_t);
 }
 
 #endif //ANIMALS_AS_METER_MATHNEON_H

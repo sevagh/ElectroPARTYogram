@@ -3,7 +3,7 @@
 
 #include <oboe/Definitions.h>
 #include <oboe/AudioStream.h>
-#include "Obtain.h"
+#include "BeatTracker.h"
 #include "SoundRecording.h"
 #include "logging_macros.h"
 #include "DrawParams.h"
@@ -18,11 +18,11 @@ private:
     const char* TAG = "RecordingCallback:: %s";
     SoundRecording* mSoundRecording = nullptr;
     DrawParams mDrawData{};
-    obtain::Obtain obtainBeatDetector;
+    obtain::BeatTracker obtainBeatDetector;
 
 public:
     explicit RecordingCallback(SoundRecording* recording, int32_t sampleRate) :
-        obtainBeatDetector(obtain::Obtain(sampleRate)) {
+        obtainBeatDetector(obtain::BeatTracker(sampleRate)) {
         mSoundRecording = recording;
     }
 

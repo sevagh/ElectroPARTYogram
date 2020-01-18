@@ -44,3 +44,22 @@ void math_neon::NormalizeByMax(std::vector<float>& vals) {
         vst1q_f32(vals.data()+i, vmulq_f32(load, scalar));
     }
 }
+
+void math_neon::ThresholdUnder(std::vector<float>& vals, float threshold_dB) {
+    float32x4_t local;
+    float32x4_t scalar = vdupq_n_f32(20.0f);
+
+    for (size_t i = 0; i < vals.size()-4; i += 4) {
+        local = vld1q_f32(vals.data()+i);
+        local = math_neon::log10(local);
+        vmulq_f32(local, scalar);
+        if (vgetq_lane_f32(local, 0) < threshold_dB)
+            vals[i] = 0;
+        if (vgetq_lane_f32(local, 1) < threshold_dB)
+            vals[i+1] = 0;
+        if (vgetq_lane_f32(local, 2) < threshold_dB)
+            vals[i+2] = 0;
+        if (vgetq_lane_f32(local, 3) < threshold_dB)
+            vals[i+3] = 0;
+    }
+}
