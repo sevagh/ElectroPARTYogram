@@ -2,21 +2,20 @@
 #define ANIMALS_AS_METER_MATHNEON_H
 
 #include "NE10.h"
-#include <vector>
 #include <arm_neon.h>
+#include <vector>
 
 namespace math_neon {
-    void
-    Complex2Magnitude(std::vector<ne10_fft_cpx_float32_t>&, std::vector<float>&);
+static constexpr float PI = 3.14159265359f;
 
-    void
-    NormalizeByMax(std::vector<float>&);
+void Complex2Magnitude(std::vector<ne10_fft_cpx_float32_t>&,
+                       std::vector<float>&);
 
-    void
-    ThresholdUnder(std::vector<float>&, float);
+void NormalizeByMax(std::vector<float>&);
 
-    float32x4_t
-    log10(float32x4_t);
-}
+void ThresholdUnder(std::vector<float>&, float);
 
-#endif //ANIMALS_AS_METER_MATHNEON_H
+float32x4_t log10(float32x4_t);
+} // namespace math_neon
+
+#endif // ANIMALS_AS_METER_MATHNEON_H

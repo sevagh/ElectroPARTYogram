@@ -14,8 +14,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <android_native_app_glue.h>
 #include "DrawParams.h"
+#include <android_native_app_glue.h>
 
 // Initialize vulkan device context
 // after return, vulkan is ready to draw
@@ -30,4 +30,4 @@ bool IsVulkanReady(void);
 // Ask Vulkan to Render a frame
 bool VulkanDrawFrame(const DrawParams&);
 
-#endif //ANIMALS_AS_METER_VULKANMAIN_H
+#endif // ANIMALS_AS_METER_VULKANMAIN_H

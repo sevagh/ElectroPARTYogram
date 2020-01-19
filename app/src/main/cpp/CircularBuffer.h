@@ -24,8 +24,8 @@
  */
 //=======================================================================
 
-#include <vector>
 #include <cstddef>
+#include <vector>
 
 //=======================================================================
 /** A circular buffer that allows you to add new samples to the end
@@ -33,26 +33,28 @@
  * efficient way which doesn't involve any memory allocation
  */
 namespace circbuf {
-    class CircularBuffer {
-    public:
-        CircularBuffer(std::size_t size) :
-            writeIndex(0),
-            buffer(size)
-            {};
+class CircularBuffer {
+public:
+	std::vector<float> buffer;
 
-        float &operator[](std::size_t i) {
-            return buffer[(i + writeIndex) & (buffer.size() - 1)];
-        }
+	CircularBuffer(std::size_t size)
+	    : writeIndex(0)
+	    , buffer(std::vector<float>(size, 0.0f)){};
 
-        void addSampleToEnd(float v) {
-            buffer[writeIndex] = v;
-            writeIndex = (writeIndex + 1) & (buffer.size() - 1);
-        }
+	float& operator[](std::size_t i)
+	{
+		return buffer[(i + writeIndex) & (buffer.size() - 1)];
+	}
 
-    private:
-        std::vector<float> buffer;
-        std::size_t writeIndex;
-    };
-}
+	void addSampleToEnd(float v)
+	{
+		buffer[writeIndex] = v;
+		writeIndex = (writeIndex + 1) & (buffer.size() - 1);
+	}
 
-#endif //ANIMALS_AS_METER_CIRCULARBUFFER_H
+private:
+	std::size_t writeIndex;
+};
+} // namespace circbuf
+
+#endif // ANIMALS_AS_METER_CIRCULARBUFFER_H
