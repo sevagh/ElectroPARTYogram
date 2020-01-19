@@ -30,7 +30,7 @@ void handle_cmd(android_app* app, int32_t cmd)
 		DeleteVulkan();
 		break;
 	default:
-		__android_log_print(ANDROID_LOG_INFO, "Vulkan Tutorials",
+		__android_log_print(ANDROID_LOG_INFO, "Animals-as-Meter",
 		                    "event not handled: %d", cmd);
 	}
 }

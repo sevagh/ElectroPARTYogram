@@ -25,7 +25,7 @@
 // Vulkan call wrapper
 #define CALL_VK(func)                                                     \
 	if (VK_SUCCESS != (func)) {                                           \
-		__android_log_print(ANDROID_LOG_ERROR, "Tutorial ",               \
+		__android_log_print(ANDROID_LOG_ERROR, "Animals-asMeter ",        \
 		                    "Vulkan error. File[%s], line[%d]", __FILE__, \
 		                    __LINE__);                                    \
 		assert(false);                                                    \
@@ -336,8 +336,8 @@ bool InitVulkan(android_app* app)
 	    .apiVersion = VK_MAKE_VERSION(1, 0, 0),
 	    .applicationVersion = VK_MAKE_VERSION(1, 0, 0),
 	    .engineVersion = VK_MAKE_VERSION(1, 0, 0),
-	    .pApplicationName = "tutorial04_first_window",
-	    .pEngineName = "tutorial",
+	    .pApplicationName = "animals_as_meter",
+	    .pEngineName = "animal_as_meter",
 	};
 
 	// create a device
