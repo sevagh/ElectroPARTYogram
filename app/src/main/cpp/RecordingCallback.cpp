@@ -18,8 +18,8 @@ RecordingCallback::processRecordingFrames(oboe::AudioStream *audioStream, float 
     // perform beat detection on the audio data in the background
     std::thread(&btrack::BeatTracker::accumulateFrame,
                 std::ref(beatDetector),
-                std::ref(audioData),
-                std::ref(numFrames)).detach();
+                audioData,
+                numFrames).detach();
 
     // get something back from beatDetector - it should be async and data should probably
     // be from a previous run

@@ -33,6 +33,7 @@ add_library( # Sets the name of the library.
         BeatTracker.cpp
         MathNeon.cpp
         MathNeonLog10.cpp
+        OnsetDetection.cpp
         ${WRAPPER_DIR}/vulkan_wrapper.cpp
         )
 

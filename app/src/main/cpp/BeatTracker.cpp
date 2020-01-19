@@ -3,11 +3,12 @@
 #include "NE10.h"
 #include <algorithm>
 #include "MathNeon.h"
+#include <unistd.h>
 
 void btrack::BeatTracker::accumulateFrame(float *audioData, int32_t numSamples) {
     // if we're done, continue on to processing in the background
     if (currentFrameProcessed) {
-        LOGI("BeatTracker: processing complete frame");
+        LOGI("BeatTracker: appending %d and processing complete frame", numSamples);
         // copy data into sampleAccumulator
         std::copy(audioData, audioData + numSamples, sampleAccumulator.begin());
         nWritten = numSamples;
@@ -22,7 +23,11 @@ void btrack::BeatTracker::processCurrentFrame() {
     // in the beginning, mark as not done yet
     currentFrameProcessed = false;
 
-    // do all the BeatTracking here
+    // call to ODF to ensure it's actually doing work
+    odf.calculateOnsetDetectionFunctionSample(sampleAccumulator);
+
+    // sleep to simulate a computation that's slower than the latency of the audio in stream
+    //usleep(8500);
 
     // at the end, shift samples to the right
     std::copy(sampleAccumulator.begin(), sampleAccumulator.end() - nWritten,
