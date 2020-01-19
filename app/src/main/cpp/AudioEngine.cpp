@@ -2,11 +2,6 @@
 #include "oboe/src/common/OboeDebug.h"
 #include <oboe/Oboe.h>
 
-AudioEngine::AudioEngine()
-{
-	assert(mOutputChannelCount == mInputChannelCount);
-}
-
 AudioEngine::~AudioEngine()
 {
 	stopStream(mRecordingStream);

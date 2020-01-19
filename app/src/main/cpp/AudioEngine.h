@@ -15,7 +15,7 @@
 class AudioEngine {
 
 public:
-	AudioEngine();
+	AudioEngine(){};
 	~AudioEngine();
 
 	RecordingCallback recordingCallback
@@ -33,10 +33,8 @@ private:
 	int32_t mRecordingDeviceId = oboe::VoiceRecognition;
 
 	oboe::AudioFormat mFormat = oboe::AudioFormat::Float;
-	const int32_t mSampleRate = 48000;
-	int32_t mFramesPerBurst;
+	static constexpr int32_t mSampleRate = 48000;
 	int32_t mInputChannelCount = oboe::ChannelCount::Stereo;
-	int32_t mOutputChannelCount = oboe::ChannelCount::Stereo;
 
 	oboe::AudioApi mAudioApi = oboe::AudioApi::AAudio;
 	oboe::AudioStream* mRecordingStream = nullptr;

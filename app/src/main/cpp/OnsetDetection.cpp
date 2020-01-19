@@ -29,14 +29,14 @@
 
 namespace onset {
 OnsetDetectionFunction::OnsetDetectionFunction()
-    : frame(std::vector<float>(FrameSize))
+    : complexOut(std::vector<ne10_fft_cpx_float32_t>(FrameSize))
+    , p(ne10_fft_alloc_r2c_float32(FrameSize))
+    , frame(std::vector<float>(FrameSize))
+    , magSpec(std::vector<float>(FrameSize))
+    , prevMagSpec(std::vector<float>(FrameSize))
     , phase(std::vector<float>(FrameSize))
     , prevPhase(std::vector<float>(FrameSize))
     , prevPhase2(std::vector<float>(FrameSize))
-    , magSpec(std::vector<float>(FrameSize))
-    , prevMagSpec(std::vector<float>(FrameSize))
-    , p(ne10_fft_alloc_r2c_float32(FrameSize))
-    , complexOut(std::vector<ne10_fft_cpx_float32_t>(FrameSize))
 {
 }
 

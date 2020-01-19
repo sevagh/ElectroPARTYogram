@@ -38,8 +38,8 @@ public:
 	std::vector<float> buffer;
 
 	CircularBuffer(std::size_t size)
-	    : writeIndex(0)
-	    , buffer(std::vector<float>(size, 0.0f)){};
+	    : buffer(std::vector<float>(size, 0.0f))
+	    , writeIndex(0){};
 
 	float& operator[](std::size_t i)
 	{

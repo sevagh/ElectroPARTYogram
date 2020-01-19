@@ -4,28 +4,26 @@
 #include "Precomputed.h"
 #include "logging_macros.h"
 #include <algorithm>
-#include <unistd.h>
 
 btrack::BeatTracker::BeatTracker(int32_t sampleRate)
     : sampleRate(sampleRate)
     , sampleAccumulator(FrameSize)
     , currentFrameProcessed(true)
-    , // start this off at true as a seed value
-    onsetDF(circbuf::CircularBuffer(OnsetDFBufferSize))
+    , onsetDF(circbuf::CircularBuffer(OnsetDFBufferSize))
     , cumulativeScore(circbuf::CircularBuffer(OnsetDFBufferSize))
     , odf(onset::OnsetDetectionFunction())
+    , complexIn(std::vector<ne10_fft_cpx_float32_t>(FFTLengthForACFCalculation))
+    , complexOut(std::vector<ne10_fft_cpx_float32_t>(FFTLengthForACFCalculation))
+    , acfFFT(ne10_fft_alloc_c2c_float32_neon(FFTLengthForACFCalculation))
     , tempoToLagFactor(60.0F * (( float )sampleRate) / ( float )HopSize)
     , tempo(120.0F)
     , estimatedTempo(120.0F)
+    , latestCumulativeScoreValue(0.0F)
+    , beatPeriod(
+          roundf(60.0F / (((( float )HopSize) / ( float )sampleRate) * tempo)))
     , m0(10)
     , beatCounter(-1)
     , beatDueInFrame(false)
-    , latestCumulativeScoreValue(0.0F)
-    , acfFFT(ne10_fft_alloc_c2c_float32(FFTLengthForACFCalculation))
-    , complexIn(std::vector<ne10_fft_cpx_float32_t>(FFTLengthForACFCalculation))
-    , complexOut(std::vector<ne10_fft_cpx_float32_t>(FFTLengthForACFCalculation))
-    , beatPeriod(
-          roundf(60.0F / (((( float )HopSize) / ( float )sampleRate) * tempo)))
 {
 	std::fill(prevDelta.begin(), prevDelta.end(), 1.0F);
 
@@ -60,12 +58,12 @@ void btrack::BeatTracker::processCurrentFrame()
 	// in the beginning, mark as not done yet
 	currentFrameProcessed = false;
 
+	/* these lines encompass the full computation of BTrack */
 	float sample = odf.calculateOnsetDetectionFunctionSample(sampleAccumulator);
-
 	processOnsetDetectionFunctionSample(sample);
-	// sleep to simulate a computation that's slower than the latency of the
-	// audio in stream
-	// usleep(8500);
+	LOGI("BeatTracker: ended BTrack computation. beat expected: %s",
+	     beatDueInFrame ? "true" : "false");
+	/* end of BTrack */
 
 	// at the end, shift samples to the right
 	std::copy(sampleAccumulator.begin(), sampleAccumulator.end() - nWritten,
@@ -112,7 +110,7 @@ void btrack::BeatTracker::calculateTempo()
 	int t_index;
 	int t_index2;
 	// calculate tempo observation vector from beat period observation vector
-	for (int i = 0; i < 41; i++) {
+	for (int i = 0; i < 41; ++i) {
 		t_index = ( int )round(tempoToLagFactor / (( float )((2 * i) + 80)));
 		t_index2 = ( int )round(tempoToLagFactor / (( float )((4 * i) + 160)));
 
@@ -124,9 +122,9 @@ void btrack::BeatTracker::calculateTempo()
 	float maxind;
 	float curval;
 
-	for (int j = 0; j < 41; j++) {
+	for (int j = 0; j < 41; ++j) {
 		maxval = -1;
-		for (int i = 0; i < 41; i++) {
+		for (int i = 0; i < 41; ++i) {
 			curval = prevDelta[i] * precomputed::TempoTransitionMatrix[i][j];
 
 			if (curval > maxval) {
@@ -174,7 +172,7 @@ void btrack::BeatTracker::predictBeat()
 
 	// create future window - TODO can this be precomputed?
 	float v = 1.0F;
-	for (size_t i = 0; i < windowSize; i++) {
+	for (size_t i = 0; i < windowSize; ++i) {
 		w2[i] = expf((-1.0F * powf((v - (beatPeriod / 2.0F)), 2.0F))
 		             / (2.0F * powf((beatPeriod / 2.0F), 2.0F)));
 		v += 1.0F;
@@ -205,7 +203,7 @@ void btrack::BeatTracker::predictBeat()
 
 		max = 0;
 		n = 0;
-		for (size_t k = start; k <= end; k++) {
+		for (size_t k = start; k <= end; ++k) {
 			wcumscore = futureCumulativeScore[k] * w1[n];
 
 			if (wcumscore > max) {
@@ -222,7 +220,7 @@ void btrack::BeatTracker::predictBeat()
 	n = 0;
 
 	for (size_t i = OnsetDFBufferSize; i < (OnsetDFBufferSize + windowSize);
-	     i++) {
+	     ++i) {
 		wcumscore = futureCumulativeScore[i] * w2[n];
 
 		if (wcumscore > max) {
@@ -258,7 +256,7 @@ void btrack::BeatTracker::updateCumulativeScore(float odfSample)
 
 	max = 0;
 	size_t n = 0;
-	for (size_t i = start; i <= end; i++) {
+	for (size_t i = start; i <= end; ++i) {
 		wcumscore = cumulativeScore[i] * w1[n++];
 		if (wcumscore > max)
 			max = wcumscore;
@@ -268,6 +266,8 @@ void btrack::BeatTracker::updateCumulativeScore(float odfSample)
 	cumulativeScore.addSampleToEnd(latestCumulativeScoreValue);
 }
 
+// TODO ne10 FFT has some weird scaling rules - ensure this doesn't screw with
+// BTrack
 void btrack::BeatTracker::calculateBalancedACF(
     std::vector<float>& onsetDetectionFunction)
 {
@@ -311,6 +311,101 @@ void btrack::BeatTracker::calculateBalancedACF(
 		// to keep it
 		acf[i] = acf[i] / ( float )FFTLengthForACFCalculation;
 		lag -= 1.0F;
+	}
+}
+
+float btrack::BeatTracker::calculateMeanOfArray(const float* array,
+                                                size_t start,
+                                                size_t end)
+{
+	float sum = 0;
+	size_t length = end - start;
+
+	// find sum
+	for (size_t i = start; i < end; i++) {
+		sum = sum + array[i];
+	}
+
+	return (length > 0) ? sum / length : 0;
+}
+
+void btrack::BeatTracker::normalizeArray(float* array, size_t N)
+{
+	float sum = 0.0F;
+
+	for (size_t i = 0; i < N; i++) {
+		if (array[i] > 0) {
+			sum += array[i];
+		}
+	}
+
+	if (sum > 0) {
+		for (size_t i = 0; i < N; i++) {
+			array[i] /= sum;
+		}
+	}
+}
+
+void btrack::BeatTracker::adaptiveThreshold(float* x, size_t N)
+{
+	size_t i = 0;
+	size_t k = 0;
+	size_t t = 0;
+	float x_thresh[N];
+
+	size_t p_post = 7;
+	size_t p_pre = 8;
+
+	t = std::min(N, p_post); // what is smaller, p_post of df size. This is to
+	                         // avoid accessing outside of arrays
+
+	// find threshold for first 't' samples, where a full average cannot be
+	// computed yet
+	for (i = 0; i <= t; ++i) {
+		k = std::min((i + p_pre), N);
+		x_thresh[i] = calculateMeanOfArray(x, 1, k);
+	}
+	// find threshold for bulk of samples across a moving average from
+	// [i-p_pre,i+p_post]
+	for (i = t + 1; i < N - p_post; ++i) {
+		x_thresh[i] = calculateMeanOfArray(x, i - p_pre, i + p_post);
+	}
+
+	// for last few samples calculate threshold, again, not enough samples to
+	// do as above
+	for (i = N - p_post; i < N; ++i) {
+		k = std::max<size_t>(i - p_post, 1);
+		x_thresh[i] = calculateMeanOfArray(x, k, N);
+	}
+
+	// subtract the threshold from the detection function and check that it is
+	// not less than 0
+	for (i = 0; i < N; ++i) {
+		x[i] = x[i] - x_thresh[i];
+		if (x[i] < 0) {
+			x[i] = 0;
+		}
+	}
+}
+
+void btrack::BeatTracker::calculateOutputOfCombFilterBank()
+{
+	for (size_t i = 0; i < 128; ++i) {
+		combFilterBankOutput[i] = 0;
+	}
+
+	for (int i = 2; i <= 127; ++i) {   // max beat period
+		for (int a = 1; a <= 4; ++a) { // number of comb elements
+			for (int b = 1 - a; b <= a - 1;
+			     ++b) { // general state using normalisation of comb elements
+				combFilterBankOutput[i - 1]
+				    = combFilterBankOutput[i - 1]
+				      + (acf[(a * i + b) - 1]
+				         * precomputed::RayleighWeightingVector128[i - 1])
+				            / (2 * a
+				               - 1); // calculate value for comb filter row
+			}
+		}
 	}
 }
 

@@ -15,7 +15,6 @@
 class RecordingCallback : public oboe::AudioStreamCallback {
 
 private:
-	const char* TAG = "RecordingCallback:: %s";
 	SoundRecording* mSoundRecording = nullptr;
 	DrawParams mDrawData{};
 	btrack::BeatTracker beatDetector;

@@ -25,6 +25,18 @@ private:
 	static constexpr float Alpha = 0.9f;
 	static constexpr float Epsilon = 0.0001f;
 
+	int32_t sampleRate;
+	std::vector<float> sampleAccumulator;
+	std::atomic_bool currentFrameProcessed;
+
+	circbuf::CircularBuffer onsetDF;
+	circbuf::CircularBuffer cumulativeScore;
+	onset::OnsetDetectionFunction odf;
+
+	std::vector<ne10_fft_cpx_float32_t> complexIn;
+	std::vector<ne10_fft_cpx_float32_t> complexOut;
+	ne10_fft_cfg_float32_t acfFFT;
+
 	float tempoToLagFactor;
 	float tempo;
 	float estimatedTempo;
@@ -32,30 +44,14 @@ private:
 	float beatPeriod;
 	int m0;
 	int beatCounter;
-	bool beatDueInFrame;
 
 	std::array<float, 512> acf;
 	std::array<float, 128> combFilterBankOutput;
 	std::array<float, 41> tempoObservationVector;
 	std::array<float, 41> delta;
 	std::array<float, 41> prevDelta;
-	std::array<float, 41> prevDeltaFixed;
 
-	int32_t sampleRate;
 	int32_t nWritten;
-
-	circbuf::CircularBuffer onsetDF;
-	circbuf::CircularBuffer cumulativeScore;
-
-	onset::OnsetDetectionFunction odf;
-
-	std::atomic_bool currentFrameProcessed;
-
-	std::vector<float> sampleAccumulator;
-
-	std::vector<ne10_fft_cpx_float32_t> complexIn;
-	std::vector<ne10_fft_cpx_float32_t> complexOut;
-	ne10_fft_cfg_float32_t acfFFT;
 
 	void processCurrentFrame();
 	void processOnsetDetectionFunctionSample(float sample);
@@ -65,10 +61,12 @@ private:
 	void adaptiveThreshold(float* x, size_t N);
 	void calculateOutputOfCombFilterBank();
 	void normalizeArray(float* x, size_t N);
+	float calculateMeanOfArray(const float* x, size_t start, size_t end);
 	void calculateBalancedACF(std::vector<float>& onsetDetectionFunction);
 
 public:
 	static constexpr int FrameSize = 1024;
+	bool beatDueInFrame;
 
 	BeatTracker(int32_t sampleRate);
 	~BeatTracker();
