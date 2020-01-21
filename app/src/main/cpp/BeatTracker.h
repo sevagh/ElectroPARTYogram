@@ -30,6 +30,7 @@ private:
 	std::atomic_bool currentFrameProcessed;
 
 	circbuf::CircularBuffer onsetDF;
+	std::vector<float> resampledOnsetDF;
 	circbuf::CircularBuffer cumulativeScore;
 	onset::OnsetDetectionFunction odf;
 
@@ -38,7 +39,6 @@ private:
 	ne10_fft_cfg_float32_t acfFFT;
 
 	float tempoToLagFactor;
-	float tempo;
 	float estimatedTempo;
 	float latestCumulativeScoreValue;
 	float beatPeriod;
@@ -55,6 +55,7 @@ private:
 
 	void processCurrentFrame();
 	void processOnsetDetectionFunctionSample(float sample);
+	void resampleOnsetDetectionFunction();
 	void updateCumulativeScore(float odfSample);
 	void predictBeat();
 	void calculateTempo();

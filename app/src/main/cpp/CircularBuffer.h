@@ -2,7 +2,8 @@
 #define ANIMALS_AS_METER_CIRCULARBUFFER_H
 
 // modified for Animals-as-Meter by Sevag
-// the size should be a power of two to use efficient bitwise modulo &(size-1)
+// TBD the size should be a power of two to use efficient bitwise modulo
+// &(size-1)
 //=======================================================================
 /** @file CircularBuffer.h
  *  @brief A class for calculating onset detection functions
@@ -43,13 +44,13 @@ public:
 
 	float& operator[](std::size_t i)
 	{
-		return buffer[(i + writeIndex) & (buffer.size() - 1)];
+		return buffer[(i + writeIndex) % (buffer.size())]; // TODO: faster modulo
 	}
 
 	void addSampleToEnd(float v)
 	{
 		buffer[writeIndex] = v;
-		writeIndex = (writeIndex + 1) & (buffer.size() - 1);
+		writeIndex = (writeIndex + 1) % (buffer.size()); // TODO: faster modulo
 	}
 
 private:

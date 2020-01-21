@@ -3,6 +3,7 @@
 #include "Precomputed.h"
 #include <algorithm>
 #include <cmath>
+#include "logging_macros.h"
 
 // modified for Animals-as-Meter by Sevag
 // original from https://github.com/adamstark/BTrack
@@ -49,10 +50,24 @@ float OnsetDetectionFunction::calculateOnsetDetectionFunctionSample(
     std::vector<float>& buffer)
 {
 	// shift audio samples back in frame by hop size
-	std::copy(frame.begin() + HopSize, frame.end(), frame.begin());
+	//std::copy(frame.begin() + HopSize, frame.end(), frame.begin());
 
 	// add new samples to frame from input buffer
-	std::copy(buffer.begin(), buffer.begin() + HopSize, frame.end() - HopSize);
+	//std::copy(buffer.begin(), buffer.begin() + HopSize, frame.end() - HopSize);
+	// shift audio samples back in frame by hop size
+	for (int i = 0; i < (FrameSize-HopSize);i++)
+	{
+		frame[i] = frame[i+HopSize];
+	}
+
+// add new samples to frame from input buffer
+	int j = 0;
+	for (int i = (FrameSize-HopSize);i < FrameSize;i++)
+	{
+		frame[i] = buffer[j];
+		j++;
+	}
+
 
 	return complexSpectralDifferenceHWR();
 }
@@ -62,14 +77,22 @@ void OnsetDetectionFunction::performFFT()
 	size_t fsize2 = FrameSize / 2;
 	size_t idx = 0;
 
+	std::vector<ne10_fft_cpx_float32_t> complexIn(1024);
+
 	for (size_t i = 0; i < fsize2; ++i) {
-		idx = i + fsize2;
-		frame[i] *= precomputed::HanningWindow1024[i];
-		frame[idx] *= precomputed::HanningWindow1024[idx];
-		std::swap(frame[i], frame[idx]);
+		complexIn[i].r = frame[i + fsize2] * precomputed::HanningWindow1024[i + fsize2];
+		complexIn[i].i = 0.0F;
+		complexIn[i+fsize2].r = frame[i] * precomputed::HanningWindow1024[i];
+		complexIn[i+fsize2].i = 0.0F;
+		//idx = i + fsize2;
+		//frame[i] *= precomputed::HanningWindow1024[i];
+		//frame[idx] *= precomputed::HanningWindow1024[idx];
+		//std::iter_swap(frame.begin()+i, frame.begin()+idx);
 	}
 
-	ne10_fft_r2c_1d_float32_neon(complexOut.data(), frame.data(), p);
+	//ne10_fft_r2c_1d_float32_neon(complexOut.data(), frame.data(), p);
+	ne10_fft_cfg_float32_t new_p = ne10_fft_alloc_c2c_float32_neon(1024);
+	ne10_fft_c2c_1d_float32_neon(complexOut.data(), complexIn.data(), new_p, 0);
 }
 
 float OnsetDetectionFunction::complexSpectralDifferenceHWR()

@@ -23,10 +23,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate: ")
+        super.onCreate(savedInstanceState)
 
         verifyRecordPermissions()
 
-        super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         aamInfoButton.setOnClickListener {

@@ -53,7 +53,7 @@ find_library( # Sets the name of the path variable.
         log)
 
 # Oboe
-set (OBOE_DIR ./oboe)
+set(OBOE_DIR ./oboe)
 add_subdirectory(${OBOE_DIR} ./oboe)
 include_directories(${OBOE_DIR}/include)
 
@@ -61,9 +61,14 @@ include_directories(${OBOE_DIR}/include)
 set(CMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake)
 set(NE10_ANDROID_TARGET_ARCH "aarch64")
 set(ANDROID_API_LEVEL 24)
-set (NE10_DIR ./Ne10)
+set(NE10_DIR ./Ne10)
 add_subdirectory(${NE10_DIR} ./Ne10)
 include_directories(${NE10_DIR}/inc)
+
+# libsamplerate for BTrack
+set(LIBSR_DIR ./libsamplerate)
+add_subdirectory(${LIBSR_DIR} ./libsamplerate)
+include_directories(${LIBSR_DIR}/src)
 
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
@@ -78,6 +83,7 @@ target_link_libraries( # Specifies the target library.
         NE10
         app-glue
         android
+        samplerate
 
         # Links the target library to the log library
         # included in the NDK.
