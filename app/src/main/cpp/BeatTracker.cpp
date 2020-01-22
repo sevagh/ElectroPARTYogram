@@ -9,6 +9,7 @@
 
 btrack::BeatTracker::BeatTracker(int32_t sampleRate_)
     : sampleRate(44100)
+    , nWritten(0)
     , sampleAccumulator(FrameSize)
     , currentFrameProcessed(true)
     , onsetDF(circbuf::CircularBuffer(OnsetDFBufferSize))
@@ -19,13 +20,13 @@ btrack::BeatTracker::BeatTracker(int32_t sampleRate_)
     , complexOut(std::vector<ne10_fft_cpx_float32_t>(FFTLengthForACFCalculation))
     , acfFFT(ne10_fft_alloc_c2c_float32_neon(FFTLengthForACFCalculation))
     , tempoToLagFactor(60.0F * (( float )sampleRate) / ( float )HopSize)
-    , estimatedTempo(120.0F)
     , latestCumulativeScoreValue(0.0F)
     , beatPeriod(
           roundf(60.0F / (((( float )HopSize) / ( float )sampleRate) * 120.0F)))
     , m0(10)
     , beatCounter(-1)
     , beatDueInFrame(false)
+	, estimatedTempo(120.0F)
 {
 	std::fill(prevDelta.begin(), prevDelta.end(), 1.0F);
 
@@ -40,36 +41,42 @@ btrack::BeatTracker::BeatTracker(int32_t sampleRate_)
 
 void btrack::BeatTracker::accumulateFrame(float* audioData, int32_t numSamples)
 {
-	// if we're done, continue on to processing in the background
-	if (currentFrameProcessed) {
-		LOGI("BeatTracker: appending %d and processing complete frame",
-		     numSamples);
-		// copy data into sampleAccumulator
-		std::copy(audioData, audioData + numSamples, sampleAccumulator.begin());
-		nWritten = numSamples;
-		processCurrentFrame();
-		return;
+	// shift samples to the right by numSamples to make space
+	std::copy(sampleAccumulator.begin(), sampleAccumulator.end() - numSamples,
+			  sampleAccumulator.begin() + numSamples);
+
+	// copy data into sampleAccumulator
+	std::copy(audioData, audioData + numSamples, sampleAccumulator.begin());
+
+	nWritten += numSamples;
+
+	std::transform(sampleAccumulator.begin(), sampleAccumulator.end(),
+				   sampleAccumulator.begin(),
+				   std::bind(std::multiplies<float>(), std::placeholders::_1, 10000));
+
+	if (currentFrameProcessed && (nWritten >= FrameSize)) {
+		LOGI("BeatTracker: filled %d and processing complete frame",
+			 nWritten);
+		processCurrentFrame(sampleAccumulator);
+		nWritten = 0;
 	}
-	// if we're still processing the previous thread, we no choice but to lose
-	// this data
-	LOGI("BeatTracker: dropping %d samples", numSamples);
+
+	return;
 }
 
-void btrack::BeatTracker::processCurrentFrame()
+//intentionally copy the data
+void btrack::BeatTracker::processCurrentFrame(std::vector<float> samples)
 {
 	// in the beginning, mark as not done yet
 	currentFrameProcessed = false;
 
 	/* these lines encompass the full computation of BTrack */
-	float sample = odf.calculateOnsetDetectionFunctionSample(sampleAccumulator);
+	float sample = odf.calculateOnsetDetectionFunctionSample(samples);
 	processOnsetDetectionFunctionSample(sample);
-	LOGI("BeatTracker; beat expected: %s, tempo: %f",
-		 beatDueInFrame ? "true" : "false", estimatedTempo);
-	/* end of BTrack */
 
-	// at the end, shift samples to the right by nWritten
-	std::copy(sampleAccumulator.begin(), sampleAccumulator.end() - nWritten,
-	          sampleAccumulator.begin() + nWritten);
+	LOGI("BeatTracker: beat expected: %s, tempo: %f",
+	     beatDueInFrame ? "true" : "false", estimatedTempo);
+	/* end of BTrack */
 
 	// mark as being done
 	currentFrameProcessed = true;

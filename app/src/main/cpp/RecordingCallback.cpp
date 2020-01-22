@@ -30,7 +30,8 @@ RecordingCallback::processRecordingFrames(oboe::AudioStream* audioStream,
 	// should probably be from a previous run
 
 	// ensure Vulkan can get the new draw data
-	mDrawData.streak++;
+	mDrawData.beat = beatDetector.beatDueInFrame;
+	mDrawData.tempo = beatDetector.estimatedTempo;
 
 	return oboe::DataCallbackResult::Continue;
 }

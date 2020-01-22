@@ -66,11 +66,9 @@ void AudioEngine::startStream(oboe::AudioStream* stream)
 {
 	LOGD(TAG, "startStream(): ");
 	assert(stream);
-	if (stream) {
-		oboe::Result result = stream->requestStart();
-		if (result != oboe::Result::OK) {
-			LOGE(TAG, "Error starting stream. %s", oboe::convertToText(result));
-		}
+	oboe::Result result = stream->requestStart();
+	if (result != oboe::Result::OK) {
+		LOGE(TAG, "Error starting stream. %s", oboe::convertToText(result));
 	}
 }
 

@@ -2,7 +2,8 @@
 #define ANIMALS_AS_METER_DRAWPARAMS_H
 
 struct DrawParams {
-	int streak;
+	bool beat;
+	float tempo;
 };
 
 #endif // ANIMALS_AS_METER_DRAWPARAMS_H

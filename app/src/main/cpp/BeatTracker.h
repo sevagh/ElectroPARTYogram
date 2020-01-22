@@ -21,11 +21,12 @@ private:
 	static constexpr int HopSize = 512;
 	static constexpr size_t OnsetDFBufferSize = 512;
 	static constexpr size_t FFTLengthForACFCalculation = 1024;
-	static constexpr float Tightness = 5.0f;
-	static constexpr float Alpha = 0.9f;
-	static constexpr float Epsilon = 0.0001f;
+	static constexpr float Tightness = 5.0F;
+	static constexpr float Alpha = 0.9F;
+	static constexpr float Epsilon = 0.0001F;
 
 	int32_t sampleRate;
+	int32_t nWritten;
 	std::vector<float> sampleAccumulator;
 	std::atomic_bool currentFrameProcessed;
 
@@ -39,7 +40,6 @@ private:
 	ne10_fft_cfg_float32_t acfFFT;
 
 	float tempoToLagFactor;
-	float estimatedTempo;
 	float latestCumulativeScoreValue;
 	float beatPeriod;
 	int m0;
@@ -51,9 +51,7 @@ private:
 	std::array<float, 41> delta;
 	std::array<float, 41> prevDelta;
 
-	int32_t nWritten;
-
-	void processCurrentFrame();
+	void processCurrentFrame(std::vector<float> samples);
 	void processOnsetDetectionFunctionSample(float sample);
 	void resampleOnsetDetectionFunction();
 	void updateCumulativeScore(float odfSample);
@@ -68,6 +66,7 @@ private:
 public:
 	static constexpr int FrameSize = 1024;
 	bool beatDueInFrame;
+	float estimatedTempo;
 
 	BeatTracker(int32_t sampleRate);
 	~BeatTracker();
