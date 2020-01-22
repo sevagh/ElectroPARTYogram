@@ -42,7 +42,7 @@ void btrack::BeatTracker::accumulateFrame(float* audioData, int32_t numSamples)
 {
 	// if we're done, continue on to processing in the background
 	if (currentFrameProcessed) {
-		LOGI("SEVAGDEBUG: BeatTracker: appending %d and processing complete frame",
+		LOGI("BeatTracker: appending %d and processing complete frame",
 		     numSamples);
 		// copy data into sampleAccumulator
 		std::copy(audioData, audioData + numSamples, sampleAccumulator.begin());
@@ -52,7 +52,7 @@ void btrack::BeatTracker::accumulateFrame(float* audioData, int32_t numSamples)
 	}
 	// if we're still processing the previous thread, we no choice but to lose
 	// this data
-	LOGI("SEVAGDEBUG: BeatTracker: dropping %d samples", numSamples);
+	LOGI("BeatTracker: dropping %d samples", numSamples);
 }
 
 void btrack::BeatTracker::processCurrentFrame()
@@ -61,16 +61,10 @@ void btrack::BeatTracker::processCurrentFrame()
 	currentFrameProcessed = false;
 
 	/* these lines encompass the full computation of BTrack */
-	for (size_t i = 0; i < 1024; ++i)  {
-		std::vector<float> fake_data(1024);
-		std::iota(fake_data.begin(), fake_data.end(), 0);
-		//float sample = odf.calculateOnsetDetectionFunctionSample(sampleAccumulator);
-		float sample = odf.calculateOnsetDetectionFunctionSample(fake_data);
-		processOnsetDetectionFunctionSample(sample);
-		LOGI("SEVAGDEBUG: BeatTracker iter %d: ended BTrack computation. beat expected: %s, tempo: %f",
-			 i, beatDueInFrame ? "true" : "false", estimatedTempo);
-	}
-	exit(0);
+	float sample = odf.calculateOnsetDetectionFunctionSample(sampleAccumulator);
+	processOnsetDetectionFunctionSample(sample);
+	LOGI("BeatTracker; beat expected: %s, tempo: %f",
+		 beatDueInFrame ? "true" : "false", estimatedTempo);
 	/* end of BTrack */
 
 	// at the end, shift samples to the right by nWritten
@@ -90,8 +84,6 @@ void btrack::BeatTracker::processOnsetDetectionFunctionSample(float sample)
 
 	onsetDF.addSampleToEnd(sample);
 	updateCumulativeScore(sample);
-
-	LOGI("SEVAGDEBUG: BeatTracker: updateCumulativeScore 1023: %f", cumulativeScore[1023]);
 
 	if (m0 == 0) {
 		predictBeat();
@@ -158,7 +150,6 @@ void btrack::BeatTracker::calculateTempo()
 		t_index = ( size_t )roundf(tempoToLagFactor / (((2.0F * i) + 80.0F)));
 		t_index2 = ( size_t )roundf(tempoToLagFactor / (((4.0F * i) + 160.0F)));
 
-		LOGI("SEVAGDEBUG: combFilter1: %f, combFilter2: %f", combFilterBankOutput[t_index - 1], combFilterBankOutput[t_index2 - 1]);
 		tempoObservationVector[i] = combFilterBankOutput[t_index - 1]
 		                            + combFilterBankOutput[t_index2 - 1];
 	}
@@ -290,8 +281,6 @@ void btrack::BeatTracker::updateCumulativeScore(float odfSample)
 	end = (size_t)(OnsetDFBufferSize - roundf(beatPeriod / 2.0F));
 
 	winsize = end - start + 1;
-
-	LOGI("SEVAGDEBUG: magic sauce: %lu %f %lu %lu %lu", OnsetDFBufferSize, beatPeriod, start, end, winsize);
 
 	float w1[winsize];
 	float v = -2.0F * beatPeriod;
