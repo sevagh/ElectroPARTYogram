@@ -42,7 +42,7 @@ void btrack::BeatTracker::accumulateFrame(float* audioData, int32_t numSamples)
 {
 	// if we're done, continue on to processing in the background
 	if (currentFrameProcessed) {
-		LOGI("BeatTracker: appending %d and processing complete frame",
+		LOGI("SEVAGDEBUG: BeatTracker: appending %d and processing complete frame",
 		     numSamples);
 		// copy data into sampleAccumulator
 		std::copy(audioData, audioData + numSamples, sampleAccumulator.begin());
@@ -52,7 +52,7 @@ void btrack::BeatTracker::accumulateFrame(float* audioData, int32_t numSamples)
 	}
 	// if we're still processing the previous thread, we no choice but to lose
 	// this data
-	LOGI("BeatTracker: dropping %d samples", numSamples);
+	LOGI("SEVAGDEBUG: BeatTracker: dropping %d samples", numSamples);
 }
 
 void btrack::BeatTracker::processCurrentFrame()
@@ -67,7 +67,7 @@ void btrack::BeatTracker::processCurrentFrame()
 		//float sample = odf.calculateOnsetDetectionFunctionSample(sampleAccumulator);
 		float sample = odf.calculateOnsetDetectionFunctionSample(fake_data);
 		processOnsetDetectionFunctionSample(sample);
-		LOGI("BeatTracker iter %d: ended BTrack computation. beat expected: %s, tempo: %f",
+		LOGI("SEVAGDEBUG: BeatTracker iter %d: ended BTrack computation. beat expected: %s, tempo: %f",
 			 i, beatDueInFrame ? "true" : "false", estimatedTempo);
 	}
 	exit(0);
@@ -91,7 +91,7 @@ void btrack::BeatTracker::processOnsetDetectionFunctionSample(float sample)
 	onsetDF.addSampleToEnd(sample);
 	updateCumulativeScore(sample);
 
-	LOGI("BeatTracker: updateCumulativeScore 1023: %f", cumulativeScore[1023]);
+	LOGI("SEVAGDEBUG: BeatTracker: updateCumulativeScore 1023: %f", cumulativeScore[1023]);
 
 	if (m0 == 0) {
 		predictBeat();
@@ -140,16 +140,16 @@ void btrack::BeatTracker::resampleOnsetDetectionFunction() {
 void btrack::BeatTracker::calculateTempo()
 {
 	// adaptive threshold on input - TODO faster math with MathNeon
-	adaptiveThreshold(onsetDF.buffer.data(), 512);
+	adaptiveThreshold(resampledOnsetDF.data(), resampledOnsetDF.size());
 
 	// calculate auto-correlation function of detection function
-	calculateBalancedACF(onsetDF.buffer);
+	calculateBalancedACF(resampledOnsetDF);
 
 	// calculate output of comb filterbank - TODO faster math with MathNeon
 	calculateOutputOfCombFilterBank();
 
 	// adaptive threshold on rcf
-	adaptiveThreshold(combFilterBankOutput.data(), 128);
+	adaptiveThreshold(combFilterBankOutput.data(), combFilterBankOutput.size());
 
 	size_t t_index;
 	size_t t_index2;
@@ -158,6 +158,7 @@ void btrack::BeatTracker::calculateTempo()
 		t_index = ( size_t )roundf(tempoToLagFactor / (((2.0F * i) + 80.0F)));
 		t_index2 = ( size_t )roundf(tempoToLagFactor / (((4.0F * i) + 160.0F)));
 
+		LOGI("SEVAGDEBUG: combFilter1: %f, combFilter2: %f", combFilterBankOutput[t_index - 1], combFilterBankOutput[t_index2 - 1]);
 		tempoObservationVector[i] = combFilterBankOutput[t_index - 1]
 		                            + combFilterBankOutput[t_index2 - 1];
 	}
@@ -193,8 +194,6 @@ void btrack::BeatTracker::calculateTempo()
 		prevDelta[j] = delta[j];
 	}
 
-	LOGI("lol i don't even know anymore: %f", maxind);
-	maxind = 30;
 	beatPeriod = roundf((60.0F * (( float )sampleRate))
 	                    / (((2.0F * maxind) + 80.0F) * (( float )HopSize)));
 
@@ -292,7 +291,7 @@ void btrack::BeatTracker::updateCumulativeScore(float odfSample)
 
 	winsize = end - start + 1;
 
-	LOGI("magic sauce: %lu %f %lu %lu %lu", OnsetDFBufferSize, beatPeriod, start, end, winsize);
+	LOGI("SEVAGDEBUG: magic sauce: %lu %f %lu %lu %lu", OnsetDFBufferSize, beatPeriod, start, end, winsize);
 
 	float w1[winsize];
 	float v = -2.0F * beatPeriod;
@@ -361,7 +360,7 @@ void btrack::BeatTracker::calculateBalancedACF(
 		// algorithm produces exactly the same ACF output as the old time
 		// domain implementation. The time difference is minimal so I decided
 		// to keep it
-		acf[i] = acf[i] / ( float )FFTLengthForACFCalculation;
+		//acf[i] = acf[i] / ( float )FFTLengthForACFCalculation;
 		lag -= 1.0F;
 	}
 }
@@ -408,7 +407,7 @@ void btrack::BeatTracker::adaptiveThreshold(float* x, size_t N)
 	size_t p_post = 7;
 	size_t p_pre = 8;
 
-	t = std::min(N, p_post); // what is smaller, p_post of df size. This is to
+	t = std::min(N, p_post); // what is smaller, p_post or df size. This is to
 	                         // avoid accessing outside of arrays
 
 	// find threshold for first 't' samples, where a full average cannot be
@@ -442,9 +441,7 @@ void btrack::BeatTracker::adaptiveThreshold(float* x, size_t N)
 
 void btrack::BeatTracker::calculateOutputOfCombFilterBank()
 {
-	for (size_t i = 0; i < 128; ++i) {
-		combFilterBankOutput[i] = 0;
-	}
+	std::fill(combFilterBankOutput.begin(), combFilterBankOutput.end(), 0.0F);
 
 	for (int i = 2; i <= 127; ++i) {   // max beat period
 		for (int a = 1; a <= 4; ++a) { // number of comb elements
