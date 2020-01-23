@@ -97,9 +97,6 @@ void AudioEngine::closeStream(oboe::AudioStream* stream)
 			LOGE(TAG, "Error closing stream. ");
 			LOGE(TAG, oboe::convertToText(result));
 		}
-		else {
-			stream = nullptr;
-		}
 
 		LOGW(TAG, "closeStream(): mTotalSamples = ");
 		LOGW(TAG, std::to_string(mSoundRecording.getTotalSamples()).c_str());

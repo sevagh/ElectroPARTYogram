@@ -43,10 +43,11 @@ void android_main(struct android_app* app)
 	// Used to poll the events in the main loop
 	int events;
 	android_poll_source* source;
-	AudioEngine audioEngine;
-	audioEngine.startRecording();
 
 	assert(ne10_init() == NE10_OK);
+
+	AudioEngine audioEngine;
+	audioEngine.startRecording();
 
 	// Main loop
 	do {

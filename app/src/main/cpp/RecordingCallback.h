@@ -18,10 +18,14 @@ private:
 	SoundRecording* mSoundRecording = nullptr;
 	DrawParams mDrawData{};
 	btrack::BeatTracker beatDetector;
+	std::vector<float> sampleAccumulator;
+	int32_t nWritten;
 
 public:
 	explicit RecordingCallback(SoundRecording* recording, int32_t sampleRate)
 	    : beatDetector(btrack::BeatTracker(sampleRate))
+	    , sampleAccumulator(1152)
+	    , nWritten(0)
 	{
 		mSoundRecording = recording;
 	}

@@ -16,7 +16,10 @@ add_library(app-glue STATIC ${APP_GLUE_DIR}/android_native_app_glue.c)
 
 set(ANDROID_ABI arm64-v8a)
 
+#set(USE_KISS_FFT yes)
+add_definitions(-DUSE_KISS_FFT)
 set(WRAPPER_DIR ./vulkan_wrapper)
+set(BTRACK_DIR ./BTrack)
 
 add_library( # Sets the name of the library.
         animals_as_meter
@@ -34,10 +37,13 @@ add_library( # Sets the name of the library.
         MathNeon.cpp
         MathNeonLog10.cpp
         OnsetDetection.cpp
+        ${BTRACK_DIR}/src/BTrack.cpp
+        ${BTRACK_DIR}/src/OnsetDetectionFunction.cpp
+        ${BTRACK_DIR}/libs/kiss_fft130/kiss_fft.c
         ${WRAPPER_DIR}/vulkan_wrapper.cpp
         )
 
-include_directories(${WRAPPER_DIR})
+include_directories(${WRAPPER_DIR} ${BTRACK_DIR}/src ${BTRACK_DIR}/libs/kiss_fft130/)
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by

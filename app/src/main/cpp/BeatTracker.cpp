@@ -9,9 +9,7 @@
 
 btrack::BeatTracker::BeatTracker(int32_t sampleRate_)
     : sampleRate(44100)
-    , nWritten(0)
-    , sampleAccumulator(FrameSize)
-    , currentFrameProcessed(true)
+	, currentFrameProcessed(true)
     , onsetDF(circbuf::CircularBuffer(OnsetDFBufferSize))
     , resampledOnsetDF(OnsetDFBufferSize)
     , cumulativeScore(circbuf::CircularBuffer(OnsetDFBufferSize))
@@ -25,6 +23,7 @@ btrack::BeatTracker::BeatTracker(int32_t sampleRate_)
           roundf(60.0F / (((( float )HopSize) / ( float )sampleRate) * 120.0F)))
     , m0(10)
     , beatCounter(-1)
+    , beatTracker(BTrack())
     , beatDueInFrame(false)
 	, estimatedTempo(120.0F)
 {
@@ -39,36 +38,11 @@ btrack::BeatTracker::BeatTracker(int32_t sampleRate_)
 	}
 }
 
-void btrack::BeatTracker::accumulateFrame(float* audioData, int32_t numSamples)
-{
-	// shift samples to the right by numSamples to make space
-	std::copy(sampleAccumulator.begin(), sampleAccumulator.end() - numSamples,
-			  sampleAccumulator.begin() + numSamples);
-
-	// copy data into sampleAccumulator
-	std::copy(audioData, audioData + numSamples, sampleAccumulator.begin());
-
-	nWritten += numSamples;
-
-	std::transform(sampleAccumulator.begin(), sampleAccumulator.end(),
-				   sampleAccumulator.begin(),
-				   std::bind(std::multiplies<float>(), std::placeholders::_1, 10000));
-
-	if (currentFrameProcessed && (nWritten >= FrameSize)) {
-		LOGI("BeatTracker: filled %d and processing complete frame",
-			 nWritten);
-		processCurrentFrame(sampleAccumulator);
-		nWritten = 0;
-	}
-
-	return;
-}
-
 //intentionally copy the data
 void btrack::BeatTracker::processCurrentFrame(std::vector<float> samples)
 {
 	// in the beginning, mark as not done yet
-	currentFrameProcessed = false;
+	//currentFrameProcessed = false;
 
 	/* these lines encompass the full computation of BTrack */
 	float sample = odf.calculateOnsetDetectionFunctionSample(samples);
@@ -79,7 +53,7 @@ void btrack::BeatTracker::processCurrentFrame(std::vector<float> samples)
 	/* end of BTrack */
 
 	// mark as being done
-	currentFrameProcessed = true;
+	//currentFrameProcessed = true;
 }
 
 void btrack::BeatTracker::processOnsetDetectionFunctionSample(float sample)

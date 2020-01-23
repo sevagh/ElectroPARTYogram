@@ -34,7 +34,7 @@ private:
 
 	oboe::AudioFormat mFormat = oboe::AudioFormat::Float;
 	static constexpr int32_t mSampleRate = 48000;
-	int32_t mInputChannelCount = oboe::ChannelCount::Stereo;
+	int32_t mInputChannelCount = oboe::ChannelCount::Mono;
 
 	oboe::AudioApi mAudioApi = oboe::AudioApi::AAudio;
 	oboe::AudioStream* mRecordingStream = nullptr;

@@ -9,6 +9,7 @@
 #include <complex>
 #include <oboe/Definitions.h>
 #include <vector>
+#include "BTrack.h"
 
 /*
  * A re-implementation of https://github.com/adamstark/BTrack
@@ -26,8 +27,6 @@ private:
 	static constexpr float Epsilon = 0.0001F;
 
 	int32_t sampleRate;
-	int32_t nWritten;
-	std::vector<float> sampleAccumulator;
 	std::atomic_bool currentFrameProcessed;
 
 	circbuf::CircularBuffer onsetDF;
@@ -45,13 +44,14 @@ private:
 	int m0;
 	int beatCounter;
 
+	BTrack beatTracker;
+
 	std::array<float, 512> acf;
 	std::array<float, 128> combFilterBankOutput;
 	std::array<float, 41> tempoObservationVector;
 	std::array<float, 41> delta;
 	std::array<float, 41> prevDelta;
 
-	void processCurrentFrame(std::vector<float> samples);
 	void processOnsetDetectionFunctionSample(float sample);
 	void resampleOnsetDetectionFunction();
 	void updateCumulativeScore(float odfSample);
@@ -71,7 +71,7 @@ public:
 	BeatTracker(int32_t sampleRate);
 	~BeatTracker();
 
-	void accumulateFrame(float* audioData, int32_t numSamples);
+    void processCurrentFrame(std::vector<float> samples);
 };
 } // namespace btrack
 
