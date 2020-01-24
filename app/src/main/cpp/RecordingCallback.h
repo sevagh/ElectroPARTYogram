@@ -3,7 +3,6 @@
 
 #include "BeatTracker.h"
 #include "DrawParams.h"
-#include "SoundRecording.h"
 #include "logging_macros.h"
 #include <oboe/AudioStream.h>
 #include <oboe/Definitions.h>
@@ -15,20 +14,17 @@
 class RecordingCallback : public oboe::AudioStreamCallback {
 
 private:
-	SoundRecording* mSoundRecording = nullptr;
 	DrawParams mDrawData{};
 	btrack::BeatTracker beatDetector;
 	std::vector<float> sampleAccumulator;
 	int32_t nWritten;
+	static constexpr float Gain = 1.0F;
 
 public:
-	explicit RecordingCallback(SoundRecording* recording, int32_t sampleRate)
+	explicit RecordingCallback(int32_t sampleRate)
 	    : beatDetector(btrack::BeatTracker(sampleRate))
-	    , sampleAccumulator(1152)
 	    , nWritten(0)
-	{
-		mSoundRecording = recording;
-	}
+	    , sampleAccumulator(btrack::BeatTracker::FrameSize){};
 
 	const DrawParams& GetDrawParams();
 

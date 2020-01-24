@@ -5,7 +5,7 @@
 // original from https://github.com/adamstark/BTrack
 
 #include "NE10.h"
-#include <vector>
+#include <array>
 
 namespace onset {
 class OnsetDetectionFunction {
@@ -23,15 +23,16 @@ private:
 
 	float complexSpectralDifferenceHWR();
 
-	std::vector<ne10_fft_cpx_float32_t> complexOut;
-	ne10_fft_r2c_cfg_float32_t p;
+	std::array<ne10_fft_cpx_float32_t, FrameSize> complexIn;
+	std::array<ne10_fft_cpx_float32_t, FrameSize> complexOut;
+	ne10_fft_cfg_float32_t p;
 
-	std::vector<float> frame;
-	std::vector<float> magSpec;
-	std::vector<float> prevMagSpec;
-	std::vector<float> phase;
-	std::vector<float> prevPhase;
-	std::vector<float> prevPhase2;
+	std::array<float, FrameSize> frame;
+	std::array<float, FrameSize> magSpec;
+	std::array<float, FrameSize> prevMagSpec;
+	std::array<float, FrameSize> phase;
+	std::array<float, FrameSize> prevPhase;
+	std::array<float, FrameSize> prevPhase2;
 };
 } // namespace onset
 

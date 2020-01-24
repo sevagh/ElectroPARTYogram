@@ -9,13 +9,11 @@
 
 btrack::BeatTracker::BeatTracker(int32_t sampleRate_)
     : sampleRate(44100)
-	, currentFrameProcessed(true)
     , onsetDF(circbuf::CircularBuffer(OnsetDFBufferSize))
-    , resampledOnsetDF(OnsetDFBufferSize)
     , cumulativeScore(circbuf::CircularBuffer(OnsetDFBufferSize))
     , odf(onset::OnsetDetectionFunction())
-    , complexIn(std::vector<ne10_fft_cpx_float32_t>(FFTLengthForACFCalculation))
-    , complexOut(std::vector<ne10_fft_cpx_float32_t>(FFTLengthForACFCalculation))
+    , complexIn(FFTLengthForACFCalculation)
+    , complexOut(FFTLengthForACFCalculation)
     , acfFFT(ne10_fft_alloc_c2c_float32_neon(FFTLengthForACFCalculation))
     , tempoToLagFactor(60.0F * (( float )sampleRate) / ( float )HopSize)
     , latestCumulativeScoreValue(0.0F)
@@ -23,9 +21,10 @@ btrack::BeatTracker::BeatTracker(int32_t sampleRate_)
           roundf(60.0F / (((( float )HopSize) / ( float )sampleRate) * 120.0F)))
     , m0(10)
     , beatCounter(-1)
-    , beatTracker(BTrack())
+    , originalBeatTracker(BTrack(HopSize, FrameSize))
+    , discardSamples(sampleRate_ / 2)
     , beatDueInFrame(false)
-	, estimatedTempo(120.0F)
+    , estimatedTempo(120.0F)
 {
 	std::fill(prevDelta.begin(), prevDelta.end(), 1.0F);
 
@@ -38,22 +37,26 @@ btrack::BeatTracker::BeatTracker(int32_t sampleRate_)
 	}
 }
 
-//intentionally copy the data
+// intentionally copy the data
 void btrack::BeatTracker::processCurrentFrame(std::vector<float> samples)
 {
-	// in the beginning, mark as not done yet
-	//currentFrameProcessed = false;
+	// discard 0.5 seconds of data according to oboe's github issues
+	if (discardSamples > 0) {
+		discardSamples -= samples.size();
+		return;
+	}
 
-	/* these lines encompass the full computation of BTrack */
 	float sample = odf.calculateOnsetDetectionFunctionSample(samples);
-	processOnsetDetectionFunctionSample(sample);
+	if (sample > OnsetThreshold) {
+		processOnsetDetectionFunctionSample(sample);
 
-	LOGI("BeatTracker: beat expected: %s, tempo: %f",
-	     beatDueInFrame ? "true" : "false", estimatedTempo);
-	/* end of BTrack */
-
-	// mark as being done
-	//currentFrameProcessed = true;
+		if (beatDueInFrame) {
+			LOGI("BeatTracker 2: BEAT!, sample: %f, est. tempo: %f, last cum: "
+			     "%f",
+			     sample, estimatedTempo, latestCumulativeScoreValue);
+		}
+	} // discard low onsets
+	  /* end of BTrack */
 }
 
 void btrack::BeatTracker::processOnsetDetectionFunctionSample(float sample)
@@ -72,51 +75,18 @@ void btrack::BeatTracker::processOnsetDetectionFunctionSample(float sample)
 
 	if (beatCounter == 0) {
 		beatDueInFrame = true;
-		resampleOnsetDetectionFunction();
+		// resampleOnsetDetectionFunction();
 		calculateTempo();
-	}
-}
-
-void btrack::BeatTracker::resampleOnsetDetectionFunction() {
-	float output[512];
-	float input[OnsetDFBufferSize];
-
-	for (int i = 0;i < OnsetDFBufferSize;i++)
-	{
-		input[i] = (float) onsetDF[i];
-	}
-
-	float src_ratio = 512.0/((float) OnsetDFBufferSize);
-	int BUFFER_LEN = OnsetDFBufferSize;
-	int output_len;
-	SRC_DATA	src_data ;
-
-	//output_len = (int) floor (((float) BUFFER_LEN) * src_ratio) ;
-	output_len = 512;
-
-	src_data.data_in = input;
-	src_data.input_frames = BUFFER_LEN;
-
-	src_data.src_ratio = src_ratio;
-
-	src_data.data_out = output;
-	src_data.output_frames = output_len;
-
-	src_simple (&src_data, SRC_SINC_BEST_QUALITY, 1);
-
-	for (int i = 0;i < output_len;i++)
-	{
-		resampledOnsetDF[i] = (float) src_data.data_out[i];
 	}
 }
 
 void btrack::BeatTracker::calculateTempo()
 {
 	// adaptive threshold on input - TODO faster math with MathNeon
-	adaptiveThreshold(resampledOnsetDF.data(), resampledOnsetDF.size());
+	adaptiveThreshold(onsetDF.buffer.data(), onsetDF.buffer.size());
 
 	// calculate auto-correlation function of detection function
-	calculateBalancedACF(resampledOnsetDF);
+	calculateBalancedACF(onsetDF.buffer);
 
 	// calculate output of comb filterbank - TODO faster math with MathNeon
 	calculateOutputOfCombFilterBank();
@@ -270,7 +240,8 @@ void btrack::BeatTracker::updateCumulativeScore(float odfSample)
 	// create window
 	for (size_t i = 0; i < winsize; ++i) {
 		// TODO replace with faster MathNeon computations
-		w1[i] = expf((-1 * powf(Tightness * logf(-v / beatPeriod), 2.0F)) / 2.0F);
+		w1[i]
+		    = expf((-1 * powf(Tightness * logf(-v / beatPeriod), 2.0F)) / 2.0F);
 		v += 1.0F;
 	}
 
@@ -330,7 +301,7 @@ void btrack::BeatTracker::calculateBalancedACF(
 		// algorithm produces exactly the same ACF output as the old time
 		// domain implementation. The time difference is minimal so I decided
 		// to keep it
-		//acf[i] = acf[i] / ( float )FFTLengthForACFCalculation;
+		// acf[i] = acf[i] / ( float )FFTLengthForACFCalculation;
 		lag -= 1.0F;
 	}
 }

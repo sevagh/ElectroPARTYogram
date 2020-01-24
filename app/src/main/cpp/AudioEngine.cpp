@@ -82,8 +82,6 @@ void AudioEngine::stopStream(oboe::AudioStream* stream)
 			LOGE(TAG, "Error stopping stream. ");
 			LOGE(TAG, oboe::convertToText(result));
 		}
-		LOGW(TAG, "stopStream(): mTotalSamples = ");
-		LOGW(TAG, std::to_string(mSoundRecording.getTotalSamples()).c_str());
 	}
 }
 
@@ -97,9 +95,6 @@ void AudioEngine::closeStream(oboe::AudioStream* stream)
 			LOGE(TAG, "Error closing stream. ");
 			LOGE(TAG, oboe::convertToText(result));
 		}
-
-		LOGW(TAG, "closeStream(): mTotalSamples = ");
-		LOGW(TAG, std::to_string(mSoundRecording.getTotalSamples()).c_str());
 	}
 }
 

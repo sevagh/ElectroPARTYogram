@@ -538,9 +538,9 @@ bool VulkanDrawFrame(const DrawParams& drawParams)
 	CALL_VK(vkWaitForFences(
 	    device.device_, 1, &render.fence_, VK_TRUE, 100000000));
 
-	//LOGI("Drawing frames...... %d", drawParams.streak);
-    //LOGI("Vulkan DrawParams: beat expected: %s, tempo: %f",
-    //     drawParams.beat ? "true" : "false", drawParams.tempo);
+	// LOGI("Drawing frames...... %d", drawParams.streak);
+	// LOGI("Vulkan DrawParams: beat expected: %s, tempo: %f",
+	//     drawParams.beat ? "true" : "false", drawParams.tempo);
 
 	VkResult result;
 	VkPresentInfoKHR presentInfo{

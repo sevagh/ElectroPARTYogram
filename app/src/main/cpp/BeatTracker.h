@@ -1,6 +1,7 @@
 #ifndef ANIMALS_AS_METER_BEATTRACKER_H
 #define ANIMALS_AS_METER_BEATTRACKER_H
 
+#include "BTrack.h"
 #include "CircularBuffer.h"
 #include "NE10.h"
 #include "OnsetDetection.h"
@@ -9,7 +10,6 @@
 #include <complex>
 #include <oboe/Definitions.h>
 #include <vector>
-#include "BTrack.h"
 
 /*
  * A re-implementation of https://github.com/adamstark/BTrack
@@ -19,18 +19,17 @@ namespace btrack {
 class BeatTracker {
 
 private:
-	static constexpr int HopSize = 512;
+	static constexpr int HopSize = 576;
 	static constexpr size_t OnsetDFBufferSize = 512;
 	static constexpr size_t FFTLengthForACFCalculation = 1024;
 	static constexpr float Tightness = 5.0F;
-	static constexpr float Alpha = 0.9F;
+	static constexpr float Alpha = 0.1F;
 	static constexpr float Epsilon = 0.0001F;
+	static constexpr float OnsetThreshold = 100.0F;
 
 	int32_t sampleRate;
-	std::atomic_bool currentFrameProcessed;
 
 	circbuf::CircularBuffer onsetDF;
-	std::vector<float> resampledOnsetDF;
 	circbuf::CircularBuffer cumulativeScore;
 	onset::OnsetDetectionFunction odf;
 
@@ -44,7 +43,9 @@ private:
 	int m0;
 	int beatCounter;
 
-	BTrack beatTracker;
+	BTrack originalBeatTracker;
+
+	int discardSamples;
 
 	std::array<float, 512> acf;
 	std::array<float, 128> combFilterBankOutput;
@@ -53,7 +54,6 @@ private:
 	std::array<float, 41> prevDelta;
 
 	void processOnsetDetectionFunctionSample(float sample);
-	void resampleOnsetDetectionFunction();
 	void updateCumulativeScore(float odfSample);
 	void predictBeat();
 	void calculateTempo();
@@ -64,14 +64,14 @@ private:
 	void calculateBalancedACF(std::vector<float>& onsetDetectionFunction);
 
 public:
-	static constexpr int FrameSize = 1024;
+	static constexpr int FrameSize = 1152;
 	bool beatDueInFrame;
 	float estimatedTempo;
 
 	BeatTracker(int32_t sampleRate);
 	~BeatTracker();
 
-    void processCurrentFrame(std::vector<float> samples);
+	void processCurrentFrame(std::vector<float> samples);
 };
 } // namespace btrack
 

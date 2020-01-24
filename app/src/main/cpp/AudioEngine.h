@@ -7,7 +7,6 @@
 
 #include "DrawParams.h"
 #include "RecordingCallback.h"
-#include "SoundRecording.h"
 #include "logging_macros.h"
 #include <oboe/AudioStream.h>
 #include <oboe/Definitions.h>
@@ -18,8 +17,7 @@ public:
 	AudioEngine(){};
 	~AudioEngine();
 
-	RecordingCallback recordingCallback
-	    = RecordingCallback(&mSoundRecording, mSampleRate);
+	RecordingCallback recordingCallback = RecordingCallback(mSampleRate);
 
 	void startRecording();
 	void stopRecording();
@@ -33,13 +31,12 @@ private:
 	int32_t mRecordingDeviceId = oboe::VoiceRecognition;
 
 	oboe::AudioFormat mFormat = oboe::AudioFormat::Float;
-	static constexpr int32_t mSampleRate = 48000;
+	static constexpr int32_t mSampleRate = 44100;
 	int32_t mInputChannelCount = oboe::ChannelCount::Mono;
 
 	oboe::AudioApi mAudioApi = oboe::AudioApi::AAudio;
 	oboe::AudioStream* mRecordingStream = nullptr;
 	oboe::AudioStream* mPlaybackStream = nullptr;
-	SoundRecording mSoundRecording;
 
 	void openRecordingStream();
 
