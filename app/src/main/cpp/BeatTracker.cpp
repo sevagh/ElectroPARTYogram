@@ -3,7 +3,6 @@
 #include "NE10.h"
 #include "Precomputed.h"
 #include "logging_macros.h"
-#include "samplerate.h"
 #include <algorithm>
 #include <numeric>
 
@@ -21,7 +20,6 @@ btrack::BeatTracker::BeatTracker(int32_t sampleRate_)
           roundf(60.0F / (((( float )HopSize) / ( float )sampleRate) * 120.0F)))
     , m0(10)
     , beatCounter(-1)
-    , originalBeatTracker(BTrack(HopSize, FrameSize))
     , discardSamples(sampleRate_ / 2)
     , beatDueInFrame(false)
     , estimatedTempo(120.0F)

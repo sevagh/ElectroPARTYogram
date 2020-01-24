@@ -1,7 +1,6 @@
 #ifndef ANIMALS_AS_METER_BEATTRACKER_H
 #define ANIMALS_AS_METER_BEATTRACKER_H
 
-#include "BTrack.h"
 #include "CircularBuffer.h"
 #include "NE10.h"
 #include "OnsetDetection.h"
@@ -42,8 +41,6 @@ private:
 	float beatPeriod;
 	int m0;
 	int beatCounter;
-
-	BTrack originalBeatTracker;
 
 	int discardSamples;
 

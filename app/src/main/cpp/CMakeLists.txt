@@ -19,7 +19,6 @@ set(ANDROID_ABI arm64-v8a)
 #set(USE_KISS_FFT yes)
 add_definitions(-DUSE_KISS_FFT)
 set(WRAPPER_DIR ./vulkan_wrapper)
-set(BTRACK_DIR ./BTrack)
 
 add_library( # Sets the name of the library.
         animals_as_meter
@@ -36,13 +35,10 @@ add_library( # Sets the name of the library.
         MathNeon.cpp
         MathNeonLog10.cpp
         OnsetDetection.cpp
-        ${BTRACK_DIR}/src/BTrack.cpp
-        ${BTRACK_DIR}/src/OnsetDetectionFunction.cpp
-        ${BTRACK_DIR}/libs/kiss_fft130/kiss_fft.c
         ${WRAPPER_DIR}/vulkan_wrapper.cpp
         )
 
-include_directories(${WRAPPER_DIR} ${BTRACK_DIR}/src ${BTRACK_DIR}/libs/kiss_fft130/)
+include_directories(${WRAPPER_DIR})
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -70,11 +66,6 @@ set(NE10_DIR ./Ne10)
 add_subdirectory(${NE10_DIR} ./Ne10)
 include_directories(${NE10_DIR}/inc)
 
-# libsamplerate for BTrack
-set(LIBSR_DIR ./libsamplerate)
-add_subdirectory(${LIBSR_DIR} ./libsamplerate)
-include_directories(${LIBSR_DIR}/src)
-
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
 # build script, prebuilt third-party libraries, or system libraries.
@@ -88,7 +79,6 @@ target_link_libraries( # Specifies the target library.
         NE10
         app-glue
         android
-        samplerate
 
         # Links the target library to the log library
         # included in the NDK.

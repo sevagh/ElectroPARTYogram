@@ -4,9 +4,3 @@
 [submodule "app/src/main/cpp/Ne10"]
 	path = app/src/main/cpp/Ne10
 	url = https://github.com/projectNe10/Ne10.git
-[submodule "app/src/main/cpp/libsamplerate"]
-	path = app/src/main/cpp/libsamplerate
-	url = https://github.com/erikd/libsamplerate
-[submodule "app/src/main/cpp/BTrack"]
-	path = app/src/main/cpp/BTrack
-	url = https://github.com/sevagh/BTrack.git
