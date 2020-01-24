@@ -10,48 +10,38 @@
 
 namespace onset {
 OnsetDetectionFunction::OnsetDetectionFunction()
-    : p(ne10_fft_alloc_c2c_float32_neon(FrameSize))
-{
-}
+	: fftCfg(ne10_fft_alloc_r2c_float32(global::FrameSize))
+	{
+	}
 
 OnsetDetectionFunction::~OnsetDetectionFunction()
 {
-	ne10_fft_destroy_c2c_float32(p);
+	ne10_fft_destroy_r2c_float32(fftCfg);
 }
 
-// TODO - replace with std::copy
 float OnsetDetectionFunction::calculateOnsetDetectionFunctionSample(
     std::vector<float>& buffer)
 {
 	// shift audio samples back in frame by hop size
-	for (int i = 0; i < (FrameSize - HopSize); i++) {
-		frame[i] = frame[i + HopSize];
-	}
+	std::copy(frame.begin()+global::HopSize, frame.end(), frame.begin());
 
 	// add new samples to frame from input buffer
-	int j = 0;
-	for (int i = (FrameSize - HopSize); i < FrameSize; i++) {
-		frame[i] = buffer[j];
-		j++;
-	}
+	std::copy(buffer.begin(), buffer.begin()+global::HopSize, frame.end()-global::HopSize);
 
 	return complexSpectralDifferenceHWR();
 }
 
-// TODO - go back to r2c
 void OnsetDetectionFunction::performFFT()
 {
-	size_t fsize2 = FrameSize / 2;
+	size_t fsize2 = global::FrameSize2;
 
 	for (size_t i = 0; i < fsize2; ++i) {
-		complexIn[i].r
-		    = frame[i + fsize2] * precomputed::HanningWindow1024[i + fsize2];
-		complexIn[i].i = 0.0F;
-		complexIn[i + fsize2].r = frame[i] * precomputed::HanningWindow1024[i];
-		complexIn[i + fsize2].i = 0.0F;
+		std::iter_swap(frame.begin()+i, frame.begin()+i+fsize2);
+		frame[i] *= precomputed::HanningWindow1152[i + fsize2];
+		frame[i+fsize2] *= precomputed::HanningWindow1152[i];
 	}
 
-	ne10_fft_c2c_1d_float32_neon(complexOut.data(), complexIn.data(), p, 0);
+	ne10_fft_r2c_1d_float32_neon(complexOut.data(), frame.data(), fftCfg);
 }
 
 float OnsetDetectionFunction::complexSpectralDifferenceHWR()
@@ -67,7 +57,7 @@ float OnsetDetectionFunction::complexSpectralDifferenceHWR()
 	sum = 0; // initialise sum to zero
 
 	// compute phase values from fft output and sum deviations
-	for (int i = 0; i < FrameSize; i++) {
+	for (int i = 0; i < global::FrameSize; i++) {
 		// calculate phase value
 		phase[i] = atan2(complexOut[i].i, complexOut[i].r);
 

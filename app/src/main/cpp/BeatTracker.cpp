@@ -1,3 +1,4 @@
+#include "GlobalParams.h"
 #include "BeatTracker.h"
 #include "MathNeon.h"
 #include "NE10.h"
@@ -14,10 +15,10 @@ btrack::BeatTracker::BeatTracker(int32_t sampleRate_)
     , complexIn(FFTLengthForACFCalculation)
     , complexOut(FFTLengthForACFCalculation)
     , acfFFT(ne10_fft_alloc_c2c_float32_neon(FFTLengthForACFCalculation))
-    , tempoToLagFactor(60.0F * (( float )sampleRate) / ( float )HopSize)
+    , tempoToLagFactor(60.0F * (( float )sampleRate) / global::HopSizeF)
     , latestCumulativeScoreValue(0.0F)
     , beatPeriod(
-          roundf(60.0F / (((( float )HopSize) / ( float )sampleRate) * 120.0F)))
+          roundf(60.0F / (((global::HopSizeF) / ( float )sampleRate) * 120.0F)))
     , m0(10)
     , beatCounter(-1)
     , discardSamples(sampleRate_ / 2)
@@ -135,12 +136,12 @@ void btrack::BeatTracker::calculateTempo()
 	}
 
 	beatPeriod = roundf((60.0F * (( float )sampleRate))
-	                    / (((2.0F * maxind) + 80.0F) * (( float )HopSize)));
+	                    / (((2.0F * maxind) + 80.0F) * (global::HopSizeF)));
 
 	if (beatPeriod > 0) {
 		estimatedTempo
 		    = 60.0F
-		      / (((( float )HopSize) / (( float )sampleRate)) * beatPeriod);
+		      / (((global::HopSizeF) / (( float )sampleRate)) * beatPeriod);
 	}
 }
 

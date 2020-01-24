@@ -18,7 +18,6 @@ namespace btrack {
 class BeatTracker {
 
 private:
-	static constexpr int HopSize = 576;
 	static constexpr size_t OnsetDFBufferSize = 512;
 	static constexpr size_t FFTLengthForACFCalculation = 1024;
 	static constexpr float Tightness = 5.0F;
@@ -61,7 +60,6 @@ private:
 	void calculateBalancedACF(std::vector<float>& onsetDetectionFunction);
 
 public:
-	static constexpr int FrameSize = 1152;
 	bool beatDueInFrame;
 	float estimatedTempo;
 

@@ -1,6 +1,7 @@
 #ifndef ANIMALS_AS_METER_RECORDINGCALLBACK_H
 #define ANIMALS_AS_METER_RECORDINGCALLBACK_H
 
+#include "GlobalParams.h"
 #include "BeatTracker.h"
 #include "DrawParams.h"
 #include "logging_macros.h"
@@ -17,14 +18,13 @@ private:
 	DrawParams mDrawData{};
 	btrack::BeatTracker beatDetector;
 	std::vector<float> sampleAccumulator;
-	int32_t nWritten;
-	static constexpr float Gain = 1.0F;
+	size_t nWritten;
 
 public:
 	explicit RecordingCallback(int32_t sampleRate)
 	    : beatDetector(btrack::BeatTracker(sampleRate))
-	    , nWritten(0)
-	    , sampleAccumulator(btrack::BeatTracker::FrameSize){};
+		, sampleAccumulator(global::FrameSize)
+		, nWritten(0){};
 
 	const DrawParams& GetDrawParams();
 
