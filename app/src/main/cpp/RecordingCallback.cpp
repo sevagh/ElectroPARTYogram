@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <numeric>
 #include <thread>
+#include <vector>
 
 oboe::DataCallbackResult
 RecordingCallback::onAudioReady(oboe::AudioStream* audioStream,
@@ -18,6 +19,8 @@ RecordingCallback::processRecordingFrames(oboe::AudioStream* audioStream,
                                           float* audioData,
                                           int32_t numFrames)
 {
+    LOGI("Recording callback received: %d frames", numFrames);
+
 	// necessary assumption for the correct functioning of the app
 	assert(numFrames < global::FrameSize);
 

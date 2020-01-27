@@ -31,7 +31,7 @@ private:
 	int32_t mRecordingDeviceId = oboe::VoiceRecognition;
 
 	oboe::AudioFormat mFormat = oboe::AudioFormat::Float;
-	static constexpr int32_t mSampleRate = 44100;
+	static constexpr int32_t mSampleRate = 48000;
 	int32_t mInputChannelCount = oboe::ChannelCount::Mono;
 
 	oboe::AudioApi mAudioApi = oboe::AudioApi::AAudio;
