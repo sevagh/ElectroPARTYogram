@@ -24,7 +24,7 @@ private:
 public:
 	explicit RecordingCallback(int32_t sampleRate)
 	    : beatDetector(stompbox::btrack::BTrack<global::FrameSize, global::HopSize>(sampleRate,
-	    		stompbox::onset_detection::OnsetDetectionFunctionType::EnergyDifference))
+	    		stompbox::onset_detection::OnsetDetectionFunctionType::ComplexSpectralDifferenceHWR))
 		, sampleAccumulator(global::FrameSize)
 		, nWritten(0){};
 

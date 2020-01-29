@@ -14,24 +14,6 @@
         android:gravity="center"
         android:orientation="horizontal"
         tools:context=".MainActivity">
-
-        <ImageButton
-            android:id="@+id/aamStartButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:contentDescription="@string/startButton"
-            android:background="@color/colorAccent"
-            app:srcCompat="@android:drawable/ic_media_play" />
-
-        <ImageButton
-            android:id="@+id/aamInfoButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:contentDescription="@string/infoButton"
-            android:background="@color/colorPrimary"
-            app:srcCompat="@android:drawable/ic_menu_info_details" />
     </LinearLayout>
 
 </ScrollView>

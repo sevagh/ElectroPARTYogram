@@ -19,8 +19,7 @@ RecordingCallback::processRecordingFrames(oboe::AudioStream* audioStream,
                                           float* audioData,
                                           int32_t numFrames)
 {
-    LOGI("Recording callback received: %d frames", numFrames);
-
+    //LOGI("Recording callback received: %d frames", numFrames);
 	// necessary assumption for the correct functioning of the app
 	assert(numFrames < global::FrameSize);
 
@@ -35,15 +34,18 @@ RecordingCallback::processRecordingFrames(oboe::AudioStream* audioStream,
 
 	// if we have enough data to BeatTrack, do it in the background
 	if (nWritten >= global::FrameSize) {
-		std::thread(&btrack::BeatTracker::processCurrentFrame,
+		std::thread(&stompbox::btrack::BTrack<global::FrameSize, global::HopSize>::processCurrentFrame,
 		            std::ref(beatDetector), sampleAccumulator)
 		    .detach();
 		nWritten = global::FrameSize - nWritten;
 	}
 
+	if (beatDetector.beatDueInFrame) {
+		LOGI("beatTrack, estimatedTempo: %f", beatDetector.estimatedTempo);
+	}
 	// ensure Vulkan can get the new draw data
-	mDrawData.beat = beatDetector.beatDueInFrame;
-	mDrawData.tempo = beatDetector.estimatedTempo;
+	//mDrawData.beat = beatDetector.beatDueInFrame;
+	//mDrawData.tempo = beatDetector.estimatedTempo;
 
 	return oboe::DataCallbackResult::Continue;
 }

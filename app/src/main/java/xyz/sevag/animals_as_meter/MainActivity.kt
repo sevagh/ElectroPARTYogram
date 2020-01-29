@@ -6,11 +6,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import kotlinx.android.synthetic.main.activity_main.aamStartButton
-import kotlinx.android.synthetic.main.activity_main.aamInfoButton
 import androidx.appcompat.app.AppCompatActivity
 import com.livinglifetechway.quickpermissions.annotations.WithPermissions
-
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -29,14 +26,9 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-        aamInfoButton.setOnClickListener {
-            Toast.makeText(this, "Created by Sevag Hanssian, 2020\nhttps://github.com/sevagh/Animals-as-Meter", Toast.LENGTH_LONG).show()
-        }
-
-        aamStartButton.setOnClickListener {
-            val intent = Intent(this, NativeActivity::class.java)
-            startActivity(intent)
-        }
+        //aamInfoButton.setOnClickListener {
+        //    Toast.makeText(this, "Created by Sevag Hanssian, 2020\nhttps://github.com/sevagh/Animals-as-Meter", Toast.LENGTH_LONG).show()
+        //}
     }
 
     @WithPermissions(permissions = [Manifest.permission.RECORD_AUDIO])
