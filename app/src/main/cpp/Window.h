@@ -7,6 +7,8 @@
 
 namespace btrack {
 
+static constexpr float PI  = 3.14159265359F;
+
 template <std::size_t WindowSize>
 struct Window {
 	float data[WindowSize];
@@ -23,7 +25,7 @@ namespace detail {
 		for (size_t n = 0; n < WindowSize; ++n) {
 			window.data[n] = 0.54F
 			                 - (0.46F
-			                    * gcem::cos(2.0F * gcem::PI
+			                    * gcem::cos(2.0F * PI
 			                                * ((n_val) / N)));
 			n_val += 1.0F;
 		}
@@ -39,7 +41,7 @@ namespace detail {
 		for (size_t n = 0; n < WindowSize; ++n) {
 			window.data[n] = 0.5F
 			                 * (1.0F
-			                    - gcem::cos(2.0F * gcem::PI
+			                    - gcem::cos(2.0F * PI
 			                                * (n/N)));
 		}
 		return window;
@@ -55,10 +57,10 @@ namespace detail {
 			{
 				window.data[n] = 0.42F
 				            - (0.5F
-				               * gcem::cos(2.0F * gcem::PI
+				               * gcem::cos(2.0F * PI
 				                           * (n_val / N)))
 				            + (0.08F
-				               * gcem::cos(4.0F * gcem::PI
+				               * gcem::cos(4.0F * PI
 				                           * (n_val / N)));
 				n_val = n_val + 1.0F;
 			}
@@ -76,13 +78,13 @@ namespace detail {
         Window<WindowSize> window = {};
 
         for (int n = 0; n <= width; ++n) {
-            window.data[n] = 0.5F * (1.0F + gcem::cos(gcem::PI * (-1.0F + 2.0F*((float)n)/alpha/N)));
+            window.data[n] = 0.5F * (1.0F + gcem::cos(PI * (-1.0F + 2.0F*((float)n)/alpha/N)));
         }
         for (int n = width+1; n < WindowSize-width-1; ++n) {
             window.data[n] = 1.0F;
         }
         for (int n = WindowSize-width-1; n < WindowSize; ++n) {
-            window.data[n] = 0.5F * (1.0F + gcem::cos(gcem::PI * (-2.0F/alpha + 1.0 + 2.0F*((float)n)/alpha/N)));
+            window.data[n] = 0.5F * (1.0F + gcem::cos(PI * (-2.0F/alpha + 1.0 + 2.0F*((float)n)/alpha/N)));
         }
 
 		return window;

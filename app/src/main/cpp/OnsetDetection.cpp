@@ -184,7 +184,7 @@ float OnsetDetectionFunction::phase_deviation() {
         if (magSpec[i] > 0.1)
         {
             dev = phase[i] - (2*prevPhase[i]) + prevPhase2[i];	// phase deviation
-            pdev = detail::princarg(dev);	// wrap into [-pi,pi] range
+            pdev = princarg(dev);	// wrap into [-pi,pi] range
 
             // make all values positive
             if (pdev < 0)
@@ -377,15 +377,15 @@ float OnsetDetectionFunction::high_frequency_spectral_difference_hwr() {
 static float princarg(float phaseVal)
 {
     // if phase value is less than or equal to -pi then add 2*pi
-    while (phaseVal <= (-stompbox::math_neon::PI))
+    while (phaseVal <= (-btrack::PI))
     {
-        phaseVal += 2 * stompbox::math_neon::PI;
+        phaseVal += 2 * btrack::PI;
     }
 
     // if phase value is larger than pi, then subtract 2*pi
-    while (phaseVal > stompbox::math_neon::PI)
+    while (phaseVal > btrack::PI)
     {
-        phaseVal -= 2 * stompbox::math_neon::PI;
+        phaseVal -= 2 * btrack::PI;
     }
 
     return phaseVal;

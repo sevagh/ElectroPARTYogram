@@ -1,9 +1,8 @@
 #ifndef ANIMALS_AS_METER_RECORDINGCALLBACK_H
 #define ANIMALS_AS_METER_RECORDINGCALLBACK_H
 
-#include "GlobalParams.h"
-#include "stompbox/BTrack.h"
-#include "stompbox/OnsetDetection.h"
+#include "BTrack.h"
+#include "OnsetDetection.h"
 #include "DrawParams.h"
 #include "logging_macros.h"
 #include <oboe/AudioStream.h>
@@ -17,15 +16,16 @@ class RecordingCallback : public oboe::AudioStreamCallback {
 
 private:
 	DrawParams mDrawData{};
-	stompbox::btrack::BTrack<global::FrameSize, global::HopSize> beatDetector;
+	btrack::BTrack beatDetector;
 	std::vector<float> sampleAccumulator;
 	size_t nWritten;
+	static constexpr std::size_t FrameSize = 1024;
 
 public:
 	explicit RecordingCallback(int32_t sampleRate)
-	    : beatDetector(stompbox::btrack::BTrack<global::FrameSize, global::HopSize>(sampleRate,
-	    		stompbox::onset_detection::OnsetDetectionFunctionType::ComplexSpectralDifferenceHWR))
-		, sampleAccumulator(global::FrameSize)
+	    : beatDetector(btrack::BTrack(sampleRate,
+	    		btrack::OnsetDetectionFunctionType::ComplexSpectralDifferenceHWR))
+		, sampleAccumulator(FrameSize)
 		, nWritten(0){};
 
 	const DrawParams& GetDrawParams();

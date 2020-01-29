@@ -20,7 +20,7 @@ RecordingCallback::processRecordingFrames(oboe::AudioStream* audioStream,
                                           int32_t numFrames) {
 	//LOGI("Recording callback received: %d frames", numFrames);
 	// necessary assumption for the correct functioning of the app
-	assert(numFrames < global::FrameSize);
+	assert(numFrames < FrameSize);
 
 	// shift samples to the right by numSamples to make space
 	std::copy(sampleAccumulator.begin(), sampleAccumulator.end() - numFrames,
@@ -32,12 +32,12 @@ RecordingCallback::processRecordingFrames(oboe::AudioStream* audioStream,
 	nWritten += numFrames;
 
 	// if we have enough data to BeatTrack, do it in the background
-	if (nWritten >= global::FrameSize) {
+	if (nWritten >= FrameSize) {
 		std::thread(
-				&stompbox::btrack::BTrack<global::FrameSize, global::HopSize>::processCurrentFrame,
+				&btrack::BTrack::processCurrentFrame,
 				std::ref(beatDetector), sampleAccumulator)
 				.detach();
-		nWritten = global::FrameSize - nWritten;
+		nWritten = FrameSize - nWritten;
 
 		//if (beatDetector.beatDueInFrame) {
 		//	LOGI("recording callback: beat? %s, tempo: %f",

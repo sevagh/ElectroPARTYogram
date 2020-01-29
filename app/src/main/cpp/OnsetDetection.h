@@ -4,6 +4,7 @@
 #include "NE10.h"
 #include "Window.h"
 #include <array>
+#include <vector>
 #include <cmath>
 #include <cstddef>
 
@@ -24,9 +25,7 @@ enum OnsetDetectionFunctionType
 
 class OnsetDetectionFunction {
 public:
-	OnsetDetectionFunction()
-        : OnsetDetectionFunction(ComplexSpectralDifferenceHWR);
-
+	OnsetDetectionFunction();
 	explicit OnsetDetectionFunction(OnsetDetectionFunctionType t);
 
 	~OnsetDetectionFunction();
@@ -36,6 +35,7 @@ public:
 private:
     static constexpr std::size_t FrameSize = 1024;
     static constexpr std::size_t HopSize = 512;
+    static constexpr WindowType windowType = HanningWindow;
 	void perform_FFT();
     float energy_envelope();
     float energy_difference();
@@ -49,7 +49,9 @@ private:
     float high_frequency_spectral_difference_hwr();
 
 	OnsetDetectionFunctionType t;
-	static constexpr Window<FrameSize> window = stompbox::window::get_window<FrameSize, WindowType>();
+
+	// compute windows at compile time
+	static constexpr Window<FrameSize> window = get_window<FrameSize, windowType>();
 
 	std::array<ne10_fft_cpx_float32_t, FrameSize> complexOut = {};
     ne10_fft_r2c_cfg_float32_t fftCfg;

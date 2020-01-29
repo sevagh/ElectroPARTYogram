@@ -9,8 +9,7 @@
 #include <cstddef>
 #include <vector>
 
-
-namespace stompbox::btrack {
+namespace btrack {
 class BTrack {
 private:
     static constexpr std::size_t FrameSize = 1024;
@@ -27,7 +26,7 @@ private:
 	    = {};
 	CircularBuffer<OnsetDFBufferSize> cumulativeScore
 	    = {};
-	OnsetDetectionFunction<FrameSize, HopSize> odf;
+	OnsetDetectionFunction odf;
 
 	std::array<ne10_fft_cpx_float32_t, FFTLengthForACFCalculation> complexIn
 	    = {};
@@ -62,12 +61,11 @@ public:
 
 	explicit BTrack(
 	    int sampleRate,
-	    stompbox::onset_detection::OnsetDetectionFunctionType onsetType);
+	    OnsetDetectionFunctionType onsetType);
 	~BTrack();
 
 	void processCurrentFrame(std::vector<float> samples);
 };
 } // namespace btrack
-
 
 #endif // ANIMALS_AS_METER_BTRACK_H

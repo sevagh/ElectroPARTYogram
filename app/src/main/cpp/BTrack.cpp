@@ -1,3 +1,4 @@
+#include "BTrack.h"
 #include "BTrackPrecomputed.h"
 #include "CircularBuffer.h"
 #include "NE10.h"
@@ -181,7 +182,7 @@ void BTrack::calculateTempo()
 		maxval = -1;
 		for (size_t i = 0; i < 41; ++i) {
 			curval = prevDelta[i]
-					 * detail::precomputed::TempoTransitionMatrix[i][j];
+					 * precomputed::TempoTransitionMatrix[i][j];
 
 			if (curval > maxval) {
 				maxval = curval;
@@ -228,7 +229,7 @@ void BTrack::calculateOutputOfCombFilterBank()
 				combFilterBankOutput[i - 1]
 					= combFilterBankOutput[i - 1]
 					  + (acf[(a * i + b) - 1]
-						 * detail::precomputed::RayleighWeightingVector128[i - 1])
+						 * precomputed::RayleighWeightingVector128[i - 1])
 							/ (2 * a - 1); // calculate value for comb
 										   // filter row
 			}
@@ -285,10 +286,9 @@ void BTrack::calculateBalancedACF(
 
 BTrack::BTrack(
 	int sampleRate,
-	stompbox::onset_detection::OnsetDetectionFunctionType onsetType)
+	OnsetDetectionFunctionType onsetType)
 	: sampleRate(sampleRate)
-	, odf(stompbox::onset_detection::OnsetDetectionFunction<FrameSize, HopSize>(
-		  onsetType))
+	, odf(OnsetDetectionFunction(onsetType))
 	, acfFFT(ne10_fft_alloc_c2c_float32_neon(FFTLengthForACFCalculation))
 	, tempoToLagFactor(60.0F * (( float )sampleRate) / ( float )HopSize)
 	, latestCumulativeScoreValue(0.0F)

@@ -22,6 +22,8 @@ add_library( # Sets the name of the library.
         # Provides a relative path to your source file(s).
         AudioEngine.cpp
         RecordingCallback.cpp
+        BTrack.cpp
+        OnsetDetection.cpp
         jni_bridge.cpp
         )
 
@@ -38,20 +40,21 @@ find_library( # Sets the name of the path variable.
         # you want CMake to locate.
         log)
 
-# stompbox
-set(STOMPBOX_DIR ./stompbox)
-set(STOMPBOX_TESTS OFF CACHE BOOL "" FORCE)
-#set(STOMPBOX_TESTS OFF)
-add_subdirectory(${STOMPBOX_DIR} ./stompbox)
-include_directories(${STOMPBOX_DIR}/include
-        ${STOMPBOX_DIR}/src
-        ${STOMPBOX_DIR}/thirdparty/Ne10/inc
-        ${STOMPBOX_DIR}/thirdparty/gcem/include)
+set(GCEM_DIR ./gcem)
+include_directories(${GCEM_DIR}/include)
 
 # Oboe
 set(OBOE_DIR ./oboe)
 add_subdirectory(${OBOE_DIR} ./oboe)
 include_directories(${OBOE_DIR}/include)
+
+# Ne10 for FFT
+set(CMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake)
+set(NE10_ANDROID_TARGET_ARCH "aarch64")
+set(ANDROID_API_LEVEL 24)
+set(NE10_DIR ./Ne10)
+add_subdirectory(${NE10_DIR} ./Ne10)
+include_directories(${NE10_DIR}/inc)
 
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
@@ -61,7 +64,7 @@ target_link_libraries( # Specifies the target library.
         animals_as_meter
         oboe
         android
-        stompbox
+        NE10
 
         # Links the target library to the log library
         # included in the NDK.
