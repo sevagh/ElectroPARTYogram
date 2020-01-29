@@ -48,6 +48,7 @@ RecordingCallback::processRecordingFrames(oboe::AudioStream* audioStream,
 	// ensure Vulkan can get the new draw data
 	mDrawData.beat = beatDetector.beatDueInFrame;
 	mDrawData.tempo = beatDetector.estimatedTempo;
+	mDrawData.cumScore = beatDetector.latestCumulativeScoreValue;
 
 	return oboe::DataCallbackResult::Continue;
 }

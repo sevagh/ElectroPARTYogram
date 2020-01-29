@@ -1,15 +1,12 @@
 package xyz.sevag.animals_as_meter
 
 import android.Manifest
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.os.Bundle
 import android.os.Process.THREAD_PRIORITY_AUDIO
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.livinglifetechway.quickpermissions.annotations.WithPermissions
-import kotlin.random.Random
 
 
 class MainActivity : AppCompatActivity(), UiHelper {
@@ -22,7 +19,6 @@ class MainActivity : AppCompatActivity(), UiHelper {
     }
 
     private var streamStarted = false
-    private lateinit var canvas: Canvas
     private lateinit var audioThread: Thread
     private lateinit var audioEngine: AudioEngine
 
@@ -33,9 +29,6 @@ class MainActivity : AppCompatActivity(), UiHelper {
         setContentView(R.layout.activity_main)
 
         verifyRecordPermissions()
-
-        val bitmap = Bitmap.createBitmap(700, 1000, Bitmap.Config.ARGB_8888)
-        canvas = Canvas(bitmap)
 
         audioEngine = AudioEngine(this)
         AudioEngine.create()
@@ -53,13 +46,9 @@ class MainActivity : AppCompatActivity(), UiHelper {
         super.onResume()
     }
 
-    override fun displayBeat() {
+    override fun displayBeat(tempo: Float, score: Float) {
         runOnUiThread{
-            Log.d(TAG, "UI thread invoked")
-            val r = Random.nextInt(0, 255)
-            val g = Random.nextInt(0, 255)
-            val b = Random.nextInt(0, 255)
-            canvas.drawARGB(255, r, g, b)
+            Log.d(TAG, "UI thread invoked, $tempo $score")
         }
     }
 

@@ -12,7 +12,6 @@
 namespace btrack {
 class BTrack {
 private:
-    static constexpr std::size_t FrameSize = 1024;
 	static constexpr std::size_t HopSize = 512;
 	static constexpr std::size_t OnsetDFBufferSize = 512;
 	static constexpr std::size_t FFTLengthForACFCalculation = 1024;
@@ -35,7 +34,6 @@ private:
 	ne10_fft_cfg_float32_t acfFFT;
 
 	float tempoToLagFactor;
-	float latestCumulativeScoreValue;
 	float beatPeriod;
 	int m0;
 	int beatCounter;
@@ -58,6 +56,7 @@ private:
 public:
 	bool beatDueInFrame;
 	float estimatedTempo;
+    float latestCumulativeScoreValue;
 
 	explicit BTrack(
 	    int sampleRate,

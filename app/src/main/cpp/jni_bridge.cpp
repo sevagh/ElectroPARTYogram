@@ -79,9 +79,10 @@ Java_xyz_sevag_animals_1as_1meter_AudioEngine_GetDrawParams(JNIEnv *env, jclass)
     //LOGD(TAG, "getBeatResults(): ");
 
     auto ret = audioEngine->GetDrawParams();
-    jobjectArray retobjarr = (jobjectArray)env->NewObjectArray(2, env->FindClass("java/lang/Object"), NULL);
+    jobjectArray retobjarr = (jobjectArray)env->NewObjectArray(3, env->FindClass("java/lang/Object"), NULL);
     env->SetObjectArrayElement(retobjarr, 0, NewBool(env, ret.beat));
     env->SetObjectArrayElement(retobjarr, 1, NewFloat(env, ret.tempo));
+    env->SetObjectArrayElement(retobjarr, 2, NewFloat(env, ret.cumScore));
 
     return retobjarr;
 }

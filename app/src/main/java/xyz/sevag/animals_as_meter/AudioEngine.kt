@@ -27,10 +27,11 @@ class AudioEngine constructor(private var ui: UiHelper) {
             val drawParams = GetDrawParams()
             val beat = drawParams[0] as Boolean
             val tempo = drawParams[1] as Float
+            val cumulativeScore = drawParams[2] as Float
             if (beat) {
-                ui.displayBeat()
+                ui.displayBeat(tempo, cumulativeScore)
             }
-            TimeUnit.MILLISECONDS.sleep(30)
+            TimeUnit.MILLISECONDS.sleep(23)
         }
     }
 
