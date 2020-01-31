@@ -17,7 +17,6 @@ add_library(app-glue STATIC ${APP_GLUE_DIR}/android_native_app_glue.c)
 
 set(ANDROID_ABI arm64-v8a)
 
-
 add_library( # Sets the name of the library.
         animals_as_meter
 
