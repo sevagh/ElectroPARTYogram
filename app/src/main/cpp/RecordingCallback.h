@@ -16,12 +16,13 @@ class RecordingCallback : public oboe::AudioStreamCallback {
 
 private:
 	DrawParams mDrawData{};
-	btrack::BTrack beatDetector;
 	std::vector<float> sampleAccumulator;
 	size_t nWritten;
 	static constexpr std::size_t FrameSize = 1024;
 
 public:
+	btrack::BTrack beatDetector;
+
 	explicit RecordingCallback(int32_t sampleRate)
 	    : beatDetector(btrack::BTrack(sampleRate,
 	    		btrack::OnsetDetectionFunctionType::ComplexSpectralDifferenceHWR))

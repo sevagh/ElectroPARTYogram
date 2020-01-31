@@ -21,10 +21,6 @@ private:
 
 	int sampleRate;
 
-	CircularBuffer<OnsetDFBufferSize> onsetDF
-	    = {};
-	CircularBuffer<OnsetDFBufferSize> cumulativeScore
-	    = {};
 	OnsetDetectionFunction odf;
 
 	std::array<ne10_fft_cpx_float32_t, FFTLengthForACFCalculation> complexIn
@@ -57,6 +53,11 @@ public:
 	bool beatDueInFrame;
 	float estimatedTempo;
     float latestCumulativeScoreValue;
+
+	CircularBuffer<OnsetDFBufferSize> onsetDF
+			= {};
+	CircularBuffer<OnsetDFBufferSize> cumulativeScore
+			= {};
 
 	explicit BTrack(
 	    int sampleRate,

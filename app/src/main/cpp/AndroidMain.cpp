@@ -2,6 +2,7 @@
 #include "NE10.h"
 #include <android/log.h>
 #include <android_native_app_glue.h>
+#include <SFML/Graphics.hpp>
 
 // Process the next main command.
 void handle_cmd(android_app* app, int32_t cmd)
@@ -9,17 +10,27 @@ void handle_cmd(android_app* app, int32_t cmd)
     switch (cmd) {
         case APP_CMD_INIT_WINDOW:
             // The window is being shown, get it ready.
-            InitVulkan(app);
             break;
         case APP_CMD_TERM_WINDOW:
             // The window is being hidden or closed, clean it up.
-            DeleteVulkan();
             break;
         default:
             __android_log_print(ANDROID_LOG_INFO, "Animals-as-Meter",
                                 "event not handled: %d", cmd);
     }
 }
+
+const float pi = 3.14159265F;
+unsigned int sampleRate = 48000;
+unsigned int bufferFrames = 512; // 512 sample frames
+const int bandNumber = 128;
+const int width = bufferFrames / bandNumber;
+const int historyValues = sampleRate / (bufferFrames * 2);
+
+const float nodeRadius = 100;
+const float angularWidth = 2.0 * pi / bandNumber;
+const float barWidth = angularWidth * nodeRadius;
+
 
 void android_main(struct android_app* app)
 {
@@ -35,21 +46,77 @@ void android_main(struct android_app* app)
     AudioEngine audioEngine;
     audioEngine.startRecording();
 
+    std::vector<sf::RectangleShape> bars(bandNumber), historyBars(bandNumber);
+    int i;
+    for (i = 0; i < bandNumber; i++) {
+        bars[i].setFillColor(sf::Color(200, (256 / bandNumber) * i, (256 / bandNumber) * i));
+        historyBars[i].setFillColor(sf::Color(20, 40, 250, 100));
+    }
+
+    sf::CircleShape node(nodeRadius, 48);
+    node.setFillColor(sf::Color::Black);
+    node.setOrigin(nodeRadius, nodeRadius);
+
+    sf::RectangleShape testShape;
+    testShape.setFillColor(sf::Color::Yellow);
+
+
+    auto modes = sf::VideoMode::getFullscreenModes();
+    sf::RenderWindow window(modes[0], "Animals-as-Meter");
+    window.setVerticalSyncEnabled(true);
+    int frameCounter = 0;
+
     // Main loop
     do {
-        if (ALooper_pollAll(
-                IsVulkanReady() ? 1 : 0, nullptr, &events, ( void** )&source)
-            >= 0) {
-            if (source != NULL)
-                source->process(app, source);
-        }
-
         auto drawParams = audioEngine.GetDrawParams();
-
-        // render if vulkan is ready
-        if (IsVulkanReady()) {
-            VulkanDrawFrame(drawParams);
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed)
+                window.close();
         }
+        //gen shapes
+        node.setPosition(640, 450);
+        testShape.setSize(sf::Vector2f((int)barWidth, 200));
+        for (i = 0; i < bandNumber; i++) {
+            double height = log10(audioEngine.recordingCallback.beatDetector.onsetDF.buffer[i]) * 50;
+            double historyHeight = log10(audioEngine.recordingCallback.beatDetector.cumulativeScore.buffer[i]) * 50;
+            bars[i].setSize(sf::Vector2f(barWidth, height - 50));
+            bars[i].setOrigin(bars[i].getSize().x / 2, bars[i].getSize().y);
+            bars[i].setRotation(angularWidth * i * 180.0 / pi);
+            bars[i].setPosition(node.getPosition().x + nodeRadius * sin(angularWidth * i), node.getPosition().y - nodeRadius * cos(angularWidth * i));
+
+            historyBars[i].setSize(sf::Vector2f(barWidth, historyHeight - 50));
+//            historyBars[i].setPosition(i*(width*2 + 1), 1000 - historyHeight);
+
+            historyBars[i].setOrigin(historyBars[i].getSize().x / 2, historyBars[i].getSize().y);
+            historyBars[i].setRotation(angularWidth * i * 180.0 / pi);
+            historyBars[i].setPosition(node.getPosition().x + nodeRadius * sin(angularWidth * i), node.getPosition().y - nodeRadius * cos(angularWidth * i));
+            if (height > historyHeight * 1.07 || height < 1) {
+                bars[i].setFillColor(sf::Color::Green);
+                node.setFillColor(sf::Color::Green);
+                frameCounter = 0;
+            } else {
+                if (frameCounter > 5) {
+                    bars[i].setFillColor(sf::Color(200, (256 / bandNumber) * i, (256 / bandNumber) * i));
+                    node.setFillColor(sf::Color::Black);
+                }
+            }
+        }
+        frameCounter++;
+//        testShape.setSize(sf::Vector2f(400, 400));
+        testShape.setOrigin(testShape.getSize().x / 2, testShape.getSize().y);
+        testShape.setRotation(30);
+        testShape.setPosition(node.getPosition().x + nodeRadius * sin(pi/6), node.getPosition().y - nodeRadius * cos(pi/6));
+        window.clear();
+        //draw
+//        window.draw(testShape);
+        window.draw(node);
+        for (i = 0; i < bandNumber; i++) {
+            window.draw(bars[i]);
+            window.draw(historyBars[i]);
+        }
+        window.display();
+
     } while (app->destroyRequested == 0);
 
     audioEngine.stopRecording();

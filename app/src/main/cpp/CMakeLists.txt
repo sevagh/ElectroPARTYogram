@@ -61,6 +61,28 @@ set(NE10_DIR ./Ne10)
 add_subdirectory(${NE10_DIR} ./Ne10)
 include_directories(${NE10_DIR}/inc)
 
+# compile freetype2 from source
+set(FREETYPE_DIR ./freetype2)
+set(CMAKE_BUILD_TYPE Release)
+add_subdirectory(${FREETYPE_DIR} ./freetype2)
+include_directories(${FREETYPE_DIR}/include)
+
+# SFML for graphics
+set(CMAKE_IGNORE_PATH "") # dummy thing because of a stupid SFML/CMakeLists.txt
+set(SFML_BUILD_AUDIO FALSE)
+set(SFML_BUILD_NETWORK FALSE)
+set(SFML_USE_SYSTEM_DEPS TRUE)
+set(CMAKE_SYSTEM_NAME Android)
+set(CMAKE_ANDROID_NDK ${ANDROID_NDK})
+set(CMAKE_ANDROID_ARCH_ABI aarch64)
+set(CMAKE_ANDROID_STL_TYPE c++_static)
+set(FREETYPE_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/freetype2/libfreetype.a)
+set(SFML_DIR ./SFML)
+add_subdirectory(${SFML_DIR} ./SFML)
+include_directories(${SFML_DIR}/include )
+
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
+
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
 # build script, prebuilt third-party libraries, or system libraries.
@@ -69,8 +91,13 @@ target_link_libraries( # Specifies the target library.
         animals_as_meter
         oboe
         android
-        app_glue
+        app-glue
         NE10
+        freetype
+        EGL
+        GLESv1_CM
+        sfml-system
+        sfml-graphics
 
         # Links the target library to the log library
         # included in the NDK.
