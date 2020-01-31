@@ -5,6 +5,11 @@
 
 cmake_minimum_required(VERSION 3.10)
 
+# app glue for a native activity
+set(APP_GLUE_DIR ${ANDROID_NDK}/sources/android/native_app_glue)
+include_directories(${APP_GLUE_DIR})
+add_library(app-glue STATIC ${APP_GLUE_DIR}/android_native_app_glue.c)
+
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds them for you.
@@ -24,7 +29,7 @@ add_library( # Sets the name of the library.
         RecordingCallback.cpp
         BTrack.cpp
         OnsetDetection.cpp
-        jni_bridge.cpp
+        AndroidMain.cpp
         )
 
 # Searches for a specified prebuilt library and stores the path as a
@@ -64,6 +69,7 @@ target_link_libraries( # Specifies the target library.
         animals_as_meter
         oboe
         android
+        app_glue
         NE10
 
         # Links the target library to the log library

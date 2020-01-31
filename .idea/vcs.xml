@@ -2,9 +2,8 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/cpp/Ne10" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/cpp/gcem" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/app/src/main/cpp/oboe" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/app/src/main/cpp/stompbox" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/app/src/main/cpp/stompbox/thirdparty/Ne10" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/app/src/main/cpp/stompbox/thirdparty/gcem" vcs="Git" />
   </component>
 </project>

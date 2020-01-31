@@ -18,8 +18,6 @@ oboe::DataCallbackResult
 RecordingCallback::processRecordingFrames(oboe::AudioStream* audioStream,
                                           float* audioData,
                                           int32_t numFrames) {
-	//LOGI("Recording callback received: %d frames", numFrames);
-	// necessary assumption for the correct functioning of the app
 	assert(numFrames < FrameSize);
 
 	// shift samples to the right by numSamples to make space
@@ -38,14 +36,9 @@ RecordingCallback::processRecordingFrames(oboe::AudioStream* audioStream,
 				std::ref(beatDetector), sampleAccumulator)
 				.detach();
 		nWritten = FrameSize - nWritten;
-
-		//if (beatDetector.beatDueInFrame) {
-		//	LOGI("recording callback: beat? %s, tempo: %f",
-		//		 beatDetector.beatDueInFrame ? "true" : "false", beatDetector.estimatedTempo);
-		//}
 	}
 
-	// ensure Vulkan can get the new draw data
+	// ship draw data to Java draw thread
 	mDrawData.beat = beatDetector.beatDueInFrame;
 	mDrawData.tempo = beatDetector.estimatedTempo;
 	mDrawData.cumScore = beatDetector.latestCumulativeScoreValue;
