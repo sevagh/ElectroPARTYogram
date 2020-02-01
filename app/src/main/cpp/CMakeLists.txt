@@ -72,7 +72,6 @@ include_directories(${OPENAL_DIR}/include)
 
 # SFML
 set(CMAKE_IGNORE_PATH "") # dummy thing because of a stupid SFML/CMakeLists.txt
-set(SFML_BUILD_NETWORK FALSE)
 set(SFML_USE_SYSTEM_DEPS TRUE)
 set(CMAKE_SYSTEM_NAME Android)
 set(CMAKE_ANDROID_NDK ${ANDROID_NDK})
@@ -104,6 +103,7 @@ target_link_libraries( # Specifies the target library.
         sfml-graphics
         sfml-activity
         sfml-audio
+        sfml-network
 
         # Links the target library to the log library
         # included in the NDK.
