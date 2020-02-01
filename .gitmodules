@@ -7,9 +7,9 @@
 [submodule "app/src/main/cpp/gcem"]
 	path = app/src/main/cpp/gcem
 	url = https://github.com/kthohr/gcem
-[submodule "app/src/main/cpp/SFML"]
-	path = app/src/main/cpp/SFML
-	url = https://github.com/SFML/SFML
 [submodule "app/src/main/cpp/freetype2"]
 	path = app/src/main/cpp/freetype2
 	url = git://git.savannah.gnu.org/freetype/freetype2.git
+[submodule "app/src/main/cpp/openal-soft"]
+	path = app/src/main/cpp/openal
+	url = https://github.com/kcat/openal-soft

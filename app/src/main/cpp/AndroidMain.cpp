@@ -1,27 +1,11 @@
 #include "AudioEngine.h"
 #include "NE10.h"
 #include <android/log.h>
-#include <android_native_app_glue.h>
+//#include <android_native_app_glue.h>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <android/native_activity.h>
 #include <SFML/System/NativeActivity.hpp>
-
-// Process the next main command.
-void handle_cmd(android_app* app, int32_t cmd)
-{
-    switch (cmd) {
-        case APP_CMD_INIT_WINDOW:
-            // The window is being shown, get it ready.
-            break;
-        case APP_CMD_TERM_WINDOW:
-            // The window is being hidden or closed, clean it up.
-            break;
-        default:
-            __android_log_print(ANDROID_LOG_INFO, "Animals-as-Meter",
-                                "event not handled: %d", cmd);
-    }
-}
 
 const float pi = 3.14159265F;
 unsigned int sampleRate = 48000;
@@ -37,22 +21,11 @@ const float barWidth = angularWidth * nodeRadius;
 #include <android/native_activity.h>
 #include <SFML/System/NativeActivity.hpp>
 
-int main(int argc, char *argv[]) {
-}
-
 //void android_main(struct android_app* app)
 //{
-int main(int argc, char *argv[])
-    ANativeActivity *activity1 = app->activity;
-    int32_t sdkVer1 = activity1->sdkVersion;
-    ANativeActivity *activity = sf::getNativeActivity();
-    int32_t sdkVer2 = activity1->sdkVersion;
-
-    app->onAppCmd = handle_cmd;
-
-    // Used to poll the events in the main loop
-    int events;
-    android_poll_source* source;
+int main(int argc, char *argv[]) {
+    ANativeActivity *activity2 = sf::getNativeActivity();
+    int32_t sdkVer2 = activity2->sdkVersion;
 
     assert(ne10_init() == NE10_OK);
 
@@ -79,7 +52,7 @@ int main(int argc, char *argv[])
     int frameCounter = 0;
 
     // Main loop
-    while ((app->destroyRequested == 0) && window.isOpen()) {
+    while (window.isOpen()) {
         sf::View view = window.getDefaultView();
 
         bool focus = true;
