@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
     testShape.setFillColor(sf::Color::Yellow);
 
 
-    sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "Animals-as-Meter");
+    sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "ElectroPARTYogram");
     window.setVerticalSyncEnabled(true);
     int frameCounter = 0;
 

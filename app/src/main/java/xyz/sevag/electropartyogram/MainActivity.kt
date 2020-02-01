@@ -1,4 +1,4 @@
-package xyz.sevag.animals_as_meter
+package xyz.sevag.electropartyogram
 
 import android.Manifest
 import android.app.NativeActivity
@@ -15,7 +15,7 @@ import com.livinglifetechway.quickpermissions.annotations.WithPermissions
 class MainActivity : AppCompatActivity() {
     companion object {
         init {
-            System.loadLibrary("animals_as_meter")
+            System.loadLibrary("electropartyogram")
         }
 
         private val TAG = MainActivity::class.java.simpleName
@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         aamInfoButton.setOnClickListener {
-            Toast.makeText(this, "Created by Sevag Hanssian, 2020\nhttps://github.com/sevagh/Animals-as-Meter", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Created by Sevag Hanssian, 2020\nhttps://github.com/sevagh/ElectroPARTYogram", Toast.LENGTH_LONG).show()
         }
 
         aamStartButton.setOnClickListener {

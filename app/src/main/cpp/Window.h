@@ -1,5 +1,5 @@
-#ifndef ANIMALS_AS_METER_WINDOW_H
-#define ANIMALS_AS_METER_WINDOW_H
+#ifndef ELECTROPARTYOGRAM_WINDOW_H
+#define ELECTROPARTYOGRAM_WINDOW_H
 
 #include "gcem.hpp"
 #include <array>
@@ -148,4 +148,4 @@ constexpr Window<WindowSize> get_window() {
 }
 } // namespace btrack
 
-#endif // ANIMALS_AS_METER_WINDOW_H
+#endif // ELECTROPARTYOGRAM_WINDOW_H

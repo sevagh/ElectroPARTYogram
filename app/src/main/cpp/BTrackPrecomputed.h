@@ -1,5 +1,5 @@
-#ifndef ANIMALS_AS_METER_PRECOMPUTED_H
-#define ANIMALS_AS_METER_PRECOMPUTED_H
+#ifndef ELECTROPARTYOGRAM_PRECOMPUTED_H
+#define ELECTROPARTYOGRAM_PRECOMPUTED_H
 
 // bunch of precomputed arrays, matrices, etc. done with numpy
 namespace btrack::precomputed {
@@ -1081,4 +1081,4 @@ static constexpr float TempoTransitionMatrix[41][41] = {
 };
 }; // namespace btrack::precomputed
 
-#endif // ANIMALS_AS_METER_PRECOMPUTED_H
+#endif // ELECTROPARTYOGRAM_PRECOMPUTED_H

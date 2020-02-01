@@ -1,4 +1,4 @@
-package xyz.sevag.animals_as_meter
+package xyz.sevag.electropartyogram
 
 import org.junit.Test
 

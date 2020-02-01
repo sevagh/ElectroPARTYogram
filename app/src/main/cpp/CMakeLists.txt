@@ -13,7 +13,7 @@ cmake_minimum_required(VERSION 3.10)
 set(ANDROID_ABI arm64-v8a)
 
 add_library( # Sets the name of the library.
-        animals_as_meter
+	electropartyogram
 
         # Sets the library as a shared library.
         SHARED
@@ -90,7 +90,7 @@ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_o
 # build script, prebuilt third-party libraries, or system libraries.
 
 target_link_libraries( # Specifies the target library.
-        animals_as_meter
+	electropartyogram
         oboe
         android
         NE10

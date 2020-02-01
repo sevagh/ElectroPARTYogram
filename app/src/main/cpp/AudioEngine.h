@@ -1,5 +1,5 @@
-#ifndef ANIMALS_AS_METER_AUDIOENGINE_H
-#define ANIMALS_AS_METER_AUDIOENGINE_H
+#ifndef ELECTROPARTYOGRAM_AUDIOENGINE_H
+#define ELECTROPARTYOGRAM_AUDIOENGINE_H
 
 #ifndef MODULE_NAME
 #define MODULE_NAME "AudioEngine"
@@ -48,4 +48,4 @@ private:
 	setUpRecordingStreamParameters(oboe::AudioStreamBuilder* builder);
 };
 
-#endif // ANIMALS_AS_METER_AUDIOENGINE_H
+#endif // ELECTROPARTYOGRAM_AUDIOENGINE_H

@@ -1,5 +1,5 @@
-#ifndef ANIMALS_AS_METER_CIRCULARBUFFER_H
-#define ANIMALS_AS_METER_CIRCULARBUFFER_H
+#ifndef ELECTROPARTYOGRAM_CIRCULARBUFFER_H
+#define ELECTROPARTYOGRAM_CIRCULARBUFFER_H
 
 #include <cstddef>
 #include <array>
@@ -34,4 +34,4 @@ namespace btrack {
     };
 } // namespace btrack
 
-#endif // ANIMALS_AS_METER_CIRCULARBUFFER_H
+#endif // ELECTROPARTYOGRAM_CIRCULARBUFFER_H

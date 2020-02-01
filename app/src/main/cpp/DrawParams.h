@@ -1,5 +1,5 @@
-#ifndef ANIMALS_AS_METER_DRAWPARAMS_H
-#define ANIMALS_AS_METER_DRAWPARAMS_H
+#ifndef ELECTROPARTYOGRAM_DRAWPARAMS_H
+#define ELECTROPARTYOGRAM_DRAWPARAMS_H
 
 struct DrawParams {
 	bool beat;
@@ -7,4 +7,4 @@ struct DrawParams {
 	float cumScore;
 };
 
-#endif // ANIMALS_AS_METER_DRAWPARAMS_H
+#endif // ELECTROPARTYOGRAM_DRAWPARAMS_H

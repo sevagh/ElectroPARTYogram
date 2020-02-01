@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">Animals-as-Meter</string>
+    <string name="app_name">ElectroPARTYogram</string>
 
-    <string name="record_audio_rationale">"Animals-as-Meter requires audio recording permission to work"</string>
+    <string name="record_audio_rationale">"ElectroPARTYogram requires audio recording permission to work"</string>
 
     <string name="startButton">"Start"</string>
 

@@ -1,5 +1,5 @@
-#ifndef ANIMALS_AS_METER_BTRACK_H
-#define ANIMALS_AS_METER_BTRACK_H
+#ifndef ELECTROPARTYOGRAM_BTRACK_H
+#define ELECTROPARTYOGRAM_BTRACK_H
 
 #include "CircularBuffer.h"
 #include "NE10.h"
@@ -68,4 +68,4 @@ public:
 };
 } // namespace btrack
 
-#endif // ANIMALS_AS_METER_BTRACK_H
+#endif // ELECTROPARTYOGRAM_BTRACK_H
