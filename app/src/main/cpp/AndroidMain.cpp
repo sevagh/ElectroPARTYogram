@@ -26,8 +26,6 @@ const float barWidth = angularWidth * nodeRadius;
 //{
 int main(int argc, char *argv[]) {
     LOGI("EPG: we begin!");
-    ANativeActivity *activity2 = sf::getNativeActivity();
-    int32_t sdkVer2 = activity2->sdkVersion;
 
     assert(ne10_init() == NE10_OK);
 

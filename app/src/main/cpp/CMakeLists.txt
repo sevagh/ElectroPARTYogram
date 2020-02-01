@@ -109,4 +109,4 @@ target_link_libraries( # Specifies the target library.
 		sfml-graphics
 		sfml-network
 		sfml-activity
-		sfml-main)
+		-Wl,--whole-archive sfml-main -Wl,--no-whole-archive)
