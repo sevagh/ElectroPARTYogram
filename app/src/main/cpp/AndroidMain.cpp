@@ -20,10 +20,12 @@ const float barWidth = angularWidth * nodeRadius;
 
 #include <android/native_activity.h>
 #include <SFML/System/NativeActivity.hpp>
+#include <glad/include/glad/egl.h>
 
 //void android_main(struct android_app* app)
 //{
 int main(int argc, char *argv[]) {
+    LOGI("EPG: we begin!");
     ANativeActivity *activity2 = sf::getNativeActivity();
     int32_t sdkVer2 = activity2->sdkVersion;
 
@@ -31,6 +33,8 @@ int main(int argc, char *argv[]) {
 
     AudioEngine audioEngine;
     audioEngine.startRecording();
+
+    LOGI("EPG: we recording!");
 
     std::vector<sf::RectangleShape> bars(bandNumber), historyBars(bandNumber);
     int i;
@@ -51,8 +55,10 @@ int main(int argc, char *argv[]) {
     window.setVerticalSyncEnabled(true);
     int frameCounter = 0;
 
+    LOGI("EPG: entering main loop!");
     // Main loop
     while (window.isOpen()) {
+        LOGI("EPG poll loop!");
         sf::View view = window.getDefaultView();
 
         bool focus = true;

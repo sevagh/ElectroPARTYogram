@@ -7,6 +7,7 @@
 #include <complex>
 #include <cstddef>
 #include <vector>
+#include "logging_macros.h"
 
 static float calculateMeanOfArray(const float* array, std::size_t start, std::size_t end);
 static void adaptiveThreshold(float* x, size_t N);
@@ -321,6 +322,7 @@ void BTrack::processCurrentFrame(std::vector<float> samples)
 {
 	float sample = odf.calculate_sample(samples);
 	processOnsetDetectionFunctionSample(sample);
+	LOGI("BTrack: estimatedTempo: %f", estimatedTempo);
 };
 } // namespace btrack
 

@@ -90,21 +90,23 @@ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_o
 # build script, prebuilt third-party libraries, or system libraries.
 
 target_link_libraries( # Specifies the target library.
-	electropartyogram
+		electropartyogram
+
         oboe
+		NE10
+
+		${log-lib}
         android
-        NE10
-        OpenAL
-        OpenSLES
-        freetype
+
         EGL
         GLESv1_CM
-        sfml-system
-        sfml-graphics
-        sfml-activity
-        sfml-audio
-        sfml-network
 
-        # Links the target library to the log library
-        # included in the NDK.
-        ${log-lib})
+		sfml-system
+		OpenAL
+
+		sfml-window
+		sfml-audio
+		sfml-graphics
+		sfml-network
+		sfml-activity
+		sfml-main)
