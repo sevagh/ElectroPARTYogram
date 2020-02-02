@@ -322,7 +322,10 @@ void BTrack::processCurrentFrame(std::vector<float> samples)
 {
 	float sample = odf.calculate_sample(samples);
 	processOnsetDetectionFunctionSample(sample);
-	LOGI("BTrack: estimatedTempo: %f", estimatedTempo);
+
+	if (beatDueInFrame) {
+		LOGI("BTrack: estimatedTempo: %f", estimatedTempo);
+	}
 };
 } // namespace btrack
 
