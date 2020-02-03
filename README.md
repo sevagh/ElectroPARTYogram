@@ -15,7 +15,7 @@ ElectroPARTYgram could be interesting as:
 
 ElectroPARTYogram is a mostly native (C++ - some Kotlin for record permission requesting) Android app targeting NDK r20.1.5948944 and an API level >= 24. The only ABI built is arm64-v8a for NEON support. All development and testing was done on my Nokia 6.1. Android Studio (version 3.5.3) was used for all development.
 
-Dependencies are mostly checked out as git submodules under app/src/main/cpp, and you'll most likely have to run `git submodule update --init --recursive` after cloning the project. I've checked out the SFML sources directly since I had to make tweaks to get it to compile. Also, ogg, vorbis, and FLAC didn't work so well with the submodule method, so I compiled static arm64-v8a libraries using the NDK, as such:
+Dependencies are added as git submodules under app/src/main/cpp, and you'll most likely have to run `git submodule update --init --recursive` after cloning the project. I've included the SFML sources directly since I had to make tweaks to get it to compile. Also, for ogg, vorbis, and FLAC I compiled static arm64-v8a libraries using the NDK as such:
 
 ```
 sevagh:ogg $ mkdir -p build && cd build && \
