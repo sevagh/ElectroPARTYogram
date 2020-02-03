@@ -15,10 +15,8 @@ namespace graphics {
                    appName))
            , audioEngine(engine)
            , focus(true)
+           , touch(true)
            , view(mainWindow.getDefaultView())
-           , shapes()
-           , fingerShapes()
-           , timer(0)
        {
            mainWindow.setVerticalSyncEnabled(true);
        };
@@ -29,13 +27,13 @@ namespace graphics {
        sf::RenderWindow mainWindow;
        AudioEngine audioEngine;
        bool focus;
+       bool touch;
+       float touch_pos_1;
+       float touch_pos_2;
        sf::View view;
        sf::Event event;
-       std::vector<sf::Shape*> shapes;
-       std::vector<sf::Shape*> fingerShapes;
-       int timer;
 
-       void createBeatTrackArt(DrawParams &draw);
+       void createBeatTrackArt(const DrawParams *draw);
        void createFingerArt(const float x, const float y);
    };
 } // namespace graphics

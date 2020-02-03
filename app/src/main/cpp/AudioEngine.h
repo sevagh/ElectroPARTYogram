@@ -21,7 +21,7 @@ public:
 
 	void startRecording();
 	void stopRecording();
-	const DrawParams& GetDrawParams();
+	const DrawParams* GetDrawParams();
 
 private:
 	const char* TAG = "AudioEngine:: %s";

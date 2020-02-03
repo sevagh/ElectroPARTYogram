@@ -39,11 +39,17 @@ RecordingCallback::processRecordingFrames(oboe::AudioStream* audioStream,
 	}
 
 	// ship draw data to Java draw thread
-	mDrawData.beat = beatDetector.beatDueInFrame;
-	mDrawData.tempo = beatDetector.estimatedTempo;
-	mDrawData.cumScore = beatDetector.latestCumulativeScoreValue;
+	DrawParams drawData{};
+	drawData.beat = beatDetector.beatDueInFrame;
+	drawData.tempo = beatDetector.estimatedTempo;
+	drawData.cumScore = beatDetector.latestCumulativeScoreValue;
+	//LOGI("1.2 recording callback mDrawData copies: %s %f %f", mDrawData.beat? "true" : "false", mDrawData.tempo, mDrawData.cumScore);
+	memcpy(mDrawData, &drawData, sizeof(DrawParams));
 
 	return oboe::DataCallbackResult::Continue;
 }
 
-const DrawParams& RecordingCallback::GetDrawParams() { return mDrawData; }
+const DrawParams* RecordingCallback::GetDrawParams() {
+    LOGI("1.A recordingCallback drawParams: %s %f %f", mDrawData->beat? "true" : "false", mDrawData->tempo, mDrawData->cumScore);
+	return mDrawData;
+}

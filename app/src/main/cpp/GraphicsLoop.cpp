@@ -1,10 +1,7 @@
 #include "GraphicsLoop.h"
 
-void graphics::GraphicsLoop::createBeatTrackArt(DrawParams &draw) {
-    LOGI("BTrack: why not drawing here? %s %f %f", draw.beat ? "true" : "false", draw.tempo, draw.cumScore);
-    if (draw.beat) {
-        LOGI("BTrack: should be drawing here!");
-
+void graphics::GraphicsLoop::createBeatTrackArt(const DrawParams *draw) {
+    if (draw->beat) {
         auto viewSize = view.getSize();
         sf::CircleShape circle(viewSize.x/4.0F);
 
@@ -13,13 +10,13 @@ void graphics::GraphicsLoop::createBeatTrackArt(DrawParams &draw) {
         circle.setFillColor(sf::Color::Red);
         circle.setOutlineColor(sf::Color::Blue);
 
-        shapes.push_back(&circle);
+        mainWindow.draw(circle);
     }
 }
 
 void graphics::GraphicsLoop::createFingerArt(const float x, const float y) {
     // do nothing
-    float z = 3.0F;
+    LOGI("creating finger art!");
 }
 
 void graphics::GraphicsLoop::loop() {
@@ -36,55 +33,50 @@ void graphics::GraphicsLoop::loop() {
                     break;
                 case sf::Event::TouchBegan:
                     if (event.touch.finger == 0) {
-                        createFingerArt(event.touch.x, event.touch.y);
+                        touch = true;
+                        touch_pos_1 = event.touch.x;
+                        touch_pos_2 = event.touch.y;
                     }
                     break;
                 case sf::Event::LostFocus:
                     focus = false;
-                    mainWindow.setActive(false);
                     break;
                 case sf::Event::GainedFocus:
                     focus = true;
-                    mainWindow.setActive(true);
                     break;
                 case sf::Event::MouseEntered:
                     mainWindow.create(sf::VideoMode::getDesktopMode(),
                                       "");
                     break;
                 case sf::Event::KeyReleased:
-                    if (event.key.code == sf::Keyboard::Escape)
-                        mainWindow.close();
+                    if (event.key.code == sf::Keyboard::Escape) {
+                        mainWindow.setVisible(false);
+                        //mainWindow.close();
+                    }
                     break;
                 default:
                     break;
             }
+        }
 
-            if (focus) {
-                LOGI("GraphicsLoop: focus");
-                if (timer >= 30) { // keep a shape for 30 frames
-                    // clear the old shapes
-                    shapes.clear();
-                    timer = 0;
-                }
-                timer++;
+        if (focus) {
+            auto drawParams = audioEngine.GetDrawParams();
 
-                auto drawParams = audioEngine.GetDrawParams();
+            mainWindow.clear();
 
-                // populate the new shapes vector
-                createBeatTrackArt(drawParams);
-
-                mainWindow.clear();
-                for (auto shape : shapes) {
-                    mainWindow.draw(*shape);
-                }
-
-                // if any finger events exist, draw those too
-                for (auto shape : fingerShapes) {
-                    mainWindow.draw(*shape);
-                }
-
-                mainWindow.display();
+            if (touch) {
+                touch = false; // clear it for the next go around the loop
+                createFingerArt(touch_pos_1, touch_pos_2);
             }
+
+            createBeatTrackArt(drawParams);
+            // populate the new shapes vector
+            //if (!drawParams.beat) {
+            //    shapes.clear();
+            //    createBeatTrackArt(drawParams);
+            //}
+
+            mainWindow.display();
         }
     }
 }

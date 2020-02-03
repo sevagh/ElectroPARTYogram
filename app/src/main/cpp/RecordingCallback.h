@@ -7,6 +7,7 @@
 #include "logging_macros.h"
 #include <oboe/AudioStream.h>
 #include <oboe/Definitions.h>
+#include <optional>
 
 #ifndef MODULE_NAME
 #define MODULE_NAME "RecordingCallback"
@@ -15,7 +16,7 @@
 class RecordingCallback : public oboe::AudioStreamCallback {
 
 private:
-	DrawParams mDrawData{};
+	DrawParams *mDrawData;
 	std::vector<float> sampleAccumulator;
 	size_t nWritten;
 	static constexpr std::size_t FrameSize = 1024;
@@ -27,9 +28,14 @@ public:
 	    : beatDetector(btrack::BTrack(sampleRate,
 	    		btrack::OnsetDetectionFunctionType::ComplexSpectralDifferenceHWR))
 		, sampleAccumulator(FrameSize)
+		, mDrawData((DrawParams*) malloc(sizeof(DrawParams)))
 		, nWritten(0){};
 
-	const DrawParams& GetDrawParams();
+	~RecordingCallback() {
+		free(mDrawData);
+	}
+
+	const DrawParams* GetDrawParams();
 
 	oboe::DataCallbackResult onAudioReady(oboe::AudioStream* audioStream,
 	                                      void* audioData,
