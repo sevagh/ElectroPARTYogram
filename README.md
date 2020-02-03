@@ -8,7 +8,7 @@ ElectroPARTYgram could be interesting as:
 
 * A demonstration of an optimized implementation of the robust real-time beat detection algorithm [BTrack](https://github.com/adamstark/BTrack), which works well with live music on a budget Android phone
 * A complete example of a modern native Android app using the latest NDK, aarch64/arm64-v8a and NEON SIMD extensions
-* An Oboe + Ne10 FFTs project, which might be the building blocks of a modern low-latency audio app for Android
+* An Oboe + Ne10 project, which might be the building blocks of a modern low-latency audio app for Android
 * Building and compiling SFML to have access to a huge existing body of tutorials and examples
 
 #### Hacking
