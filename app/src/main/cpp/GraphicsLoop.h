@@ -16,6 +16,7 @@ namespace graphics {
            , audioEngine(engine)
            , focus(true)
            , touch(true)
+           , timer(0)
            , view(mainWindow.getDefaultView())
        {
            mainWindow.setVerticalSyncEnabled(true);
@@ -24,12 +25,14 @@ namespace graphics {
        void loop();
 
    private:
+       static constexpr int FramesVisible = 32;
        sf::RenderWindow mainWindow;
        AudioEngine audioEngine;
        bool focus;
        bool touch;
        float touch_pos_1;
        float touch_pos_2;
+       int timer;
        sf::View view;
        sf::Event event;
 

@@ -25,6 +25,9 @@ enum OnsetDetectionFunctionType
 
 class OnsetDetectionFunction {
 public:
+	static constexpr std::size_t FrameSize = 1024;
+	std::array<ne10_fft_cpx_float32_t, FrameSize> complexOut = {};
+
 	OnsetDetectionFunction();
 	explicit OnsetDetectionFunction(OnsetDetectionFunctionType t);
 
@@ -33,7 +36,6 @@ public:
 	float calculate_sample(std::vector<float>& buffer);
 
 private:
-    static constexpr std::size_t FrameSize = 1024;
     static constexpr std::size_t HopSize = 512;
     static constexpr WindowType windowType = HanningWindow;
 	void perform_FFT();
@@ -53,7 +55,6 @@ private:
 	// compute windows at compile time
 	static constexpr Window<FrameSize> window = get_window<FrameSize, windowType>();
 
-	std::array<ne10_fft_cpx_float32_t, FrameSize> complexOut = {};
     ne10_fft_r2c_cfg_float32_t fftCfg;
 
 	std::array<float, FrameSize> frame = {};

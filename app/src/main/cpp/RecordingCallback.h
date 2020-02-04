@@ -19,7 +19,6 @@ private:
 	DrawParams *mDrawData;
 	std::vector<float> sampleAccumulator;
 	size_t nWritten;
-	static constexpr std::size_t FrameSize = 1024;
 
 public:
 	btrack::BTrack beatDetector;
@@ -27,7 +26,7 @@ public:
 	explicit RecordingCallback(int32_t sampleRate)
 	    : beatDetector(btrack::BTrack(sampleRate,
 	    		btrack::OnsetDetectionFunctionType::ComplexSpectralDifferenceHWR))
-		, sampleAccumulator(FrameSize)
+		, sampleAccumulator(btrack::BTrack::FrameSize)
 		, mDrawData((DrawParams*) malloc(sizeof(DrawParams)))
 		, nWritten(0){};
 

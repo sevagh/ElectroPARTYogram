@@ -12,7 +12,6 @@
 namespace btrack {
 class BTrack {
 private:
-	static constexpr std::size_t HopSize = 512;
 	static constexpr std::size_t OnsetDFBufferSize = 512;
 	static constexpr std::size_t FFTLengthForACFCalculation = 1024;
 	static constexpr float Tightness = 5.0F;
@@ -20,8 +19,6 @@ private:
 	static constexpr float Epsilon = 0.0001F;
 
 	int sampleRate;
-
-	OnsetDetectionFunction odf;
 
 	std::array<ne10_fft_cpx_float32_t, FFTLengthForACFCalculation> complexIn
 	    = {};
@@ -50,9 +47,15 @@ private:
 	void calculateBalancedACF(std::array<float, OnsetDFBufferSize>& onsetDetectionFunction);
 
 public:
+	static constexpr std::size_t FrameSize = 1024;
+	static constexpr std::size_t HopSize = 512;
+
 	bool beatDueInFrame;
 	float estimatedTempo;
     float latestCumulativeScoreValue;
+    float *currentFrame;
+
+	OnsetDetectionFunction odf;
 
 	CircularBuffer<OnsetDFBufferSize> onsetDF
 			= {};

@@ -289,10 +289,10 @@ BTrack::BTrack(
 	int sampleRate,
 	OnsetDetectionFunctionType onsetType)
 	: sampleRate(sampleRate)
-	, odf(OnsetDetectionFunction(onsetType))
 	, acfFFT(ne10_fft_alloc_c2c_float32_neon(FFTLengthForACFCalculation))
 	, tempoToLagFactor(60.0F * (( float )sampleRate) / ( float )HopSize)
 	, latestCumulativeScoreValue(0.0F)
+	, odf(OnsetDetectionFunction(onsetType))
 	, beatPeriod(roundf(
 		  60.0F / (((( float )HopSize) / ( float )sampleRate) * 120.0F)))
 	, m0(10)
@@ -300,6 +300,7 @@ BTrack::BTrack(
 	, discardSamples(sampleRate / 2)
 	, beatDueInFrame(false)
 	, estimatedTempo(120.0F)
+	, currentFrame((float*)malloc(FrameSize*sizeof(float)))
 {
 	std::fill(prevDelta.begin(), prevDelta.end(), 1.0F);
 
@@ -316,16 +317,14 @@ BTrack::~BTrack()
 {
 	// destroy FFT things here
 	ne10_fft_destroy_c2c_float32(acfFFT);
+	free(currentFrame);
 };
 
 void BTrack::processCurrentFrame(std::vector<float> samples)
 {
+	memcpy(currentFrame, samples.data(), FrameSize*sizeof(float));
 	float sample = odf.calculate_sample(samples);
 	processOnsetDetectionFunctionSample(sample);
-
-	if (beatDueInFrame) {
-		LOGI("BTrack: estimatedTempo: %f", estimatedTempo);
-	}
 };
 } // namespace btrack
 
