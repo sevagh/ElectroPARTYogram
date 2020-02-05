@@ -27,6 +27,7 @@ class OnsetDetectionFunction {
 public:
 	static constexpr std::size_t FrameSize = 1024;
 	std::array<ne10_fft_cpx_float32_t, FrameSize> complexOut = {};
+	float* magSpecCopy;
 
 	OnsetDetectionFunction();
 	explicit OnsetDetectionFunction(OnsetDetectionFunctionType t);

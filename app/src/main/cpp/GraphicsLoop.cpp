@@ -1,45 +1,64 @@
 #include "GraphicsLoop.h"
 
+static bool abs_compare_f(float a, float b)
+{
+    return (std::fabs(a) < std::fabs(b));
+}
+
 void graphics::GraphicsLoop::createBeatTrackArt(const DrawParams *draw) {
+    auto viewSize = view.getSize();
+
     // copy FFT data
-    std::array<ne10_fft_cpx_float32_t, btrack::OnsetDetectionFunction::FrameSize> fftArray(audioEngine.recordingCallback.beatDetector.odf.complexOut);
+    std::vector<float> fftArray(
+            audioEngine.recordingCallback.beatDetector.odf.magSpecCopy,
+            audioEngine.recordingCallback.beatDetector.odf.magSpecCopy + btrack::OnsetDetectionFunction::FrameSize);
 
     // copy audio data
     std::vector<float> audioArray(audioEngine.recordingCallback.beatDetector.currentFrame,
             audioEngine.recordingCallback.beatDetector.currentFrame + btrack::BTrack::FrameSize);
 
-    LOGI("size of audio array: %ld", audioArray.size());
-    LOGI("size of FFT array: %ld", fftArray.size());
+    int hopSize = (int)(viewSize.x/(float)btrack::BTrack::FrameSize);
+    int pos = 0;
 
-    if (audioArray.size() == btrack::BTrack::FrameSize) {
-        // amplitude of audio in
-        sf::VertexArray curve(sf::PrimitiveType::LinesStrip, btrack::BTrack::FrameSize);
-        for (size_t i = 0; i < btrack::BTrack::FrameSize; ++i) {
-            curve[i] = sf::Vertex(sf::Vector2f(i, audioArray[i]));
-        }
-        mainWindow.draw(curve);
-    }
-
-    // magnitude of FFT
-    sf::VertexArray curve(sf::PrimitiveType::Points, btrack::BTrack::FrameSize);
+    // draw input waveform from left to right on top
+    // draw FFT from left to right on bottom
+    auto audioMax = std::max_element(audioArray.begin(), audioArray.end(), abs_compare_f);
+    audioOverallMax = std::max(*audioMax, audioOverallMax);
+    auto fftMax = std::max_element(fftArray.begin(), fftArray.end(), abs_compare_f);
+    fftOverallMax = std::max(*fftMax, fftOverallMax);
+    sf::VertexArray audioCurve(sf::PrimitiveType::LinesStrip, btrack::BTrack::FrameSize);
+    sf::VertexArray fftCurve(sf::PrimitiveType::LinesStrip, btrack::BTrack::FrameSize);
+    size_t fftIndex = 0;
     for (size_t i = 0; i < btrack::BTrack::FrameSize; ++i) {
-        curve[i] = sf::Vertex(sf::Vector2f(i, sqrtf(fftArray[i].r * fftArray[i].i)));
+        audioCurve[i] = sf::Vertex(sf::Vector2f(pos, (audioArray[i]/audioOverallMax)*0.25F*viewSize.y));
+        fftCurve[i] = sf::Vertex(sf::Vector2f(pos, viewSize.y-(fftArray[fftIndex]/fftOverallMax)*0.25F*viewSize.y));
+        pos += hopSize;
+        // fill every other element for FFT since only half is valuable
+        if (i % 2) {
+            fftIndex++;
+        }
     }
-    mainWindow.draw(curve);
+    mainWindow.draw(audioCurve);
+    mainWindow.draw(fftCurve);
+
+    // make a beat circle
+    sf::CircleShape circle(viewSize.x/4.0F);
+
+    // center the circle
+    circle.setOrigin(circle.getRadius(), circle.getRadius());
+    circle.setFillColor(sf::Color::Black);
+    circle.setPosition(viewSize.x/2.0F, viewSize.y/2.0F);
+    circle.setOutlineColor(sf::Color::Green);
+    circle.setOutlineThickness(5.0F);
 
     if (draw->beat) {
-        auto viewSize = view.getSize();
-        sf::CircleShape circle(viewSize.x/4.0F);
-
-        LOGI("drawing something on the beat!");
-        // center the circle
-        circle.setOrigin(viewSize.x/2.0F, viewSize.y/2.0F);
-        circle.setFillColor(sf::Color::Red);
-        circle.setOutlineColor(sf::Color::Blue);
-
-        mainWindow.draw(circle);
         timer = FramesVisible;
+        circle.setFillColor(sf::Color::Red); // on a beat, fill the circle red
+    } else if (timer > 0) { // keep drawing the last circle
+        circle.setFillColor(sf::Color::Red); // on a beat, fill the circle red
+        timer--;
     }
+    mainWindow.draw(circle);
 }
 
 void graphics::GraphicsLoop::createFingerArt(const float x, const float y) {
@@ -49,17 +68,10 @@ void graphics::GraphicsLoop::createFingerArt(const float x, const float y) {
 
 void graphics::GraphicsLoop::loop() {
     while (mainWindow.isOpen()) {
-        sf::View view = mainWindow.getDefaultView();
-
         while (mainWindow.pollEvent(event)) {
             switch (event.type) {
                 case sf::Event::Closed:
                     mainWindow.close();
-                    break;
-                case sf::Event::Resized:
-                    view.setSize(event.size.width, event.size.height);
-                    view.setCenter(event.size.width / 2.0F, event.size.height / 2.0F);
-                    mainWindow.setView(view);
                     break;
                 case sf::Event::TouchBegan:
                     if (event.touch.finger == 0) {
@@ -74,14 +86,9 @@ void graphics::GraphicsLoop::loop() {
                 case sf::Event::GainedFocus:
                     focus = true;
                     break;
-                case sf::Event::MouseEntered:
-                    mainWindow.create(sf::VideoMode::getDesktopMode(),
-                                      "");
-                    break;
                 case sf::Event::KeyReleased:
                     if (event.key.code == sf::Keyboard::Escape) {
-                        mainWindow.setVisible(false);
-                        //mainWindow.close();
+                        std::exit(0);
                     }
                     break;
                 default:
@@ -92,8 +99,7 @@ void graphics::GraphicsLoop::loop() {
         if (focus) {
             auto drawParams = audioEngine.GetDrawParams();
 
-            //if (timer == 0)
-            mainWindow.clear(sf::Color::Red);
+            mainWindow.clear();
 
             if (touch) {
                 touch = false; // clear it for the next go around the loop

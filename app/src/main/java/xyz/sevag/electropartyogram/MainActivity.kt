@@ -44,5 +44,3 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, "Permissions granted", Toast.LENGTH_SHORT).show()
     }
 }
-
-

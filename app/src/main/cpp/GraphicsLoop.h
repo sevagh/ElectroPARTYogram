@@ -18,6 +18,8 @@ namespace graphics {
            , touch(true)
            , timer(0)
            , view(mainWindow.getDefaultView())
+           , fftOverallMax(-FLT_MAX)
+           , audioOverallMax(-FLT_MAX)
        {
            mainWindow.setVerticalSyncEnabled(true);
        };
@@ -32,6 +34,8 @@ namespace graphics {
        bool touch;
        float touch_pos_1;
        float touch_pos_2;
+       float fftOverallMax;
+       float audioOverallMax;
        int timer;
        sf::View view;
        sf::Event event;

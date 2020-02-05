@@ -15,10 +15,12 @@ OnsetDetectionFunction::OnsetDetectionFunction(OnsetDetectionFunctionType t)
     : t(t)
     , fftCfg(ne10_fft_alloc_r2c_float32(FrameSize))
     , prevEnergySum(0.0F){
+    magSpecCopy = (float*)malloc((FrameSize/2)*sizeof(float));
 };
 
 OnsetDetectionFunction::~OnsetDetectionFunction() {
     ne10_fft_destroy_r2c_float32(fftCfg);
+    free(magSpecCopy);
 };
 
 float OnsetDetectionFunction::calculate_sample(std::vector<float>& buffer) {
@@ -247,6 +249,8 @@ float OnsetDetectionFunction::complex_spectral_difference_hwr() {
         prevPhase[i] = phase[i];
         prevMagSpec[i] = magSpec[i];
     }
+
+    memcpy(magSpecCopy, magSpec.data(), (FrameSize/2)*sizeof(float));
 
     return sum;
 };
