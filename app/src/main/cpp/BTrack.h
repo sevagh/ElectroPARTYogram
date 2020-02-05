@@ -15,7 +15,7 @@ private:
 	static constexpr std::size_t OnsetDFBufferSize = 512;
 	static constexpr std::size_t FFTLengthForACFCalculation = 1024;
 	static constexpr float Tightness = 5.0F;
-	static constexpr float Alpha = 0.1F;
+	static constexpr float Alpha = 0.9F;
 	static constexpr float Epsilon = 0.0001F;
 
 	int sampleRate;
@@ -53,6 +53,7 @@ public:
 	bool beatDueInFrame;
 	float estimatedTempo;
     float latestCumulativeScoreValue;
+    float lastOnset;
     float *currentFrame;
 
 	OnsetDetectionFunction odf;

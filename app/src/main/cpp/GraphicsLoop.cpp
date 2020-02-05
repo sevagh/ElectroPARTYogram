@@ -5,12 +5,13 @@ static bool abs_compare_f(float a, float b)
     return (std::fabs(a) < std::fabs(b));
 }
 
-void graphics::GraphicsLoop::recomputePeriod() {
-    period = std::chrono::duration_cast<std::chrono::microseconds>(
-            std::chrono::duration<float, std::ratio<1, 1000000>>(tempo/(60.0F*1000000.0F)));
-}
-
 void graphics::GraphicsLoop::createBeatTrackArt(const DrawParams *draw) {
+    bool drawBeat = draw->beat;
+
+    if (drawBeat) {
+        timer = FramesBeatVisible;
+    }
+
     auto viewSize = view.getSize();
 
     // copy FFT data
@@ -31,12 +32,37 @@ void graphics::GraphicsLoop::createBeatTrackArt(const DrawParams *draw) {
     audioOverallMax = std::max(*audioMax, audioOverallMax);
     auto fftMax = std::max_element(fftMag.begin(), fftMag.end(), abs_compare_f);
     fftMagOverallMax = std::max(*fftMax, fftMagOverallMax);
-    sf::VertexArray audioCurve(sf::PrimitiveType::LinesStrip, btrack::BTrack::FrameSize);
-    sf::VertexArray fftCurve(sf::PrimitiveType::LinesStrip, btrack::BTrack::FrameSize);
+
+    cumScoreOverallMax = std::max(cumScoreOverallMax, draw->lastOnset);
+    currentCumScore = draw->lastOnset/cumScoreOverallMax; // at most 1.0 for high energy portions
+    sf::Color color((uint8_t)(255*currentCumScore), 0, (uint8_t)(255*(1.0-currentCumScore)), (uint8_t)(255*currentCumScore));
+    sf::Color outlineColor = sf::Color::Black;
+
     size_t fftIndex = 0;
+    sf::Color defaultVertexColor = sf::Color::White;
+    if (drawBeat) {
+        beatAudioArray = audioArray;
+        beatFftMag = fftMag;
+    }
+    std::vector<float> &toUseAudio = audioArray;
+    std::vector<float> &toUseFFT = fftMag;
+    float heightFactor = 0.25F;
+
+    if ((drawBeat) || (timer > 0)) {
+        defaultVertexColor = sf::Color::Green;
+        //defaultVertexColor = sf::Color(255, 0, 0, (uint8_t)(255*currentCumScore));
+        //toUseAudio = beatAudioArray;
+        //toUseFFT = beatFftMag;
+        heightFactor = 0.75;
+    }
+
+    sf::PrimitiveType lineType = sf::PrimitiveType::LinesStrip;
+    sf::VertexArray audioCurve(lineType, btrack::BTrack::FrameSize);
+    sf::VertexArray fftCurve(lineType, btrack::BTrack::FrameSize);
+
     for (size_t i = 0; i < btrack::BTrack::FrameSize; ++i) {
-        audioCurve[i] = sf::Vertex(sf::Vector2f(pos, (audioArray[i]/audioOverallMax)*0.25F*viewSize.y));
-        fftCurve[i] = sf::Vertex(sf::Vector2f(pos, viewSize.y-(fftMag[fftIndex]/fftMagOverallMax)*0.25F*viewSize.y));
+        audioCurve[i] = sf::Vertex(sf::Vector2f(pos, (toUseAudio[i]/audioOverallMax)*heightFactor*viewSize.y), defaultVertexColor);
+        fftCurve[i] = sf::Vertex(sf::Vector2f(pos, viewSize.y-(toUseFFT[fftIndex]/fftMagOverallMax)*heightFactor*viewSize.y), defaultVertexColor);
         pos += hopSize;
         // fill every other element for FFT since only half is valuable
         if (i % 2) {
@@ -47,22 +73,30 @@ void graphics::GraphicsLoop::createBeatTrackArt(const DrawParams *draw) {
     mainWindow.draw(audioCurve);
     mainWindow.draw(fftCurve);
 
-    cumScoreOverallMax = std::max(cumScoreOverallMax, draw->cumScore);
-    currentCumScore = draw->cumScore/cumScoreOverallMax; // at most 1.0 for high energy portions
-    sf::Color color((uint8_t)(255*currentCumScore), 0, (uint8_t)(255*(1.0-currentCumScore)), (uint8_t)(255*currentCumScore));
 
     // make a beat circle
     sf::CircleShape circle(viewSize.x/4.0F);
 
-    if (draw->beat) {
-        circle.setRadius(circle.getRadius()*1.25F);
+    if ((drawBeat) || (timer > 0)) {
+        //color = sf::Color::Black;
+        //color = sf::Color(0, (uint8_t)(255*currentCumScore), 0, (uint8_t)(255*currentCumScore)); // green with variable opacity
+        color = sf::Color(0, 255, 0, (uint8_t)(255*currentCumScore));
+        circle.setRadius(circle.getRadius()*1.05F);
     }
 
     // center the circle
     circle.setOrigin(circle.getRadius(), circle.getRadius());
     circle.setPosition(viewSize.x/2.0F, viewSize.y/2.0F);
     circle.setFillColor(color);
+    //circle.setOutlineColor(outlineColor);
+    //circle.setOutlineThickness(1.0F);
+
     mainWindow.draw(circle);
+    timer--;
+
+    if (drawBeat) {
+        LOGI("BEAT ONSET: %f %f %f", draw->lastOnset, draw->tempo, draw->cumScore);
+    }
 }
 
 void graphics::GraphicsLoop::createFingerArt(const float x, const float y) {

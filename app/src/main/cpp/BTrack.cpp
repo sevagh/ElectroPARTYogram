@@ -292,6 +292,7 @@ BTrack::BTrack(
 	, acfFFT(ne10_fft_alloc_c2c_float32_neon(FFTLengthForACFCalculation))
 	, tempoToLagFactor(60.0F * (( float )sampleRate) / ( float )HopSize)
 	, latestCumulativeScoreValue(0.0F)
+	, lastOnset(0.0F)
 	, odf(OnsetDetectionFunction(onsetType))
 	, beatPeriod(roundf(
 		  60.0F / (((( float )HopSize) / ( float )sampleRate) * 120.0F)))
@@ -324,6 +325,7 @@ void BTrack::processCurrentFrame(std::vector<float> samples)
 {
 	memcpy(currentFrame, samples.data(), FrameSize*sizeof(float));
 	float sample = odf.calculate_sample(samples);
+	lastOnset = sample;
 	processOnsetDetectionFunctionSample(sample);
 };
 } // namespace btrack

@@ -2,7 +2,6 @@
 #include <SFML/Graphics.hpp>
 #include "AudioEngine.h"
 #include <optional>
-#include <chrono>
 
 #ifndef ELECTROPARTYOGRAM_GRAPHICSLOOP_H
 #define ELECTROPARTYOGRAM_GRAPHICSLOOP_H
@@ -23,10 +22,6 @@ namespace graphics {
            , audioOverallMax(-FLT_MAX)
            , cumScoreOverallMax(-FLT_MAX)
            , currentCumScore(0.0F)
-           , tempo(100) // start at 100bpm
-           , period(std::chrono::duration_cast<std::chrono::microseconds>(
-                       std::chrono::duration<float, std::ratio<1, 1000000>>(tempo/(60.0F*1000000.0F))))
-           , drawOuterCircle(false)
        {
            mainWindow.setVerticalSyncEnabled(true);
        };
@@ -34,7 +29,7 @@ namespace graphics {
        void loop();
 
    private:
-       static constexpr int FramesVisible = 128;
+       static constexpr int FramesBeatVisible = 30;
        sf::RenderWindow mainWindow;
        AudioEngine audioEngine;
        bool focus;
@@ -46,16 +41,14 @@ namespace graphics {
        float cumScoreOverallMax;
        float currentCumScore;
        float tempo;
-       std::chrono::microseconds period;
-       std::chrono::steady_clock::time_point lastBeat;
+       std::vector<float> beatFftMag;
+       std::vector<float> beatAudioArray;
        int timer;
        sf::View view;
        sf::Event event;
-       bool drawOuterCircle;
 
        void createBeatTrackArt(const DrawParams *draw);
        void createFingerArt(const float x, const float y);
-       void recomputePeriod();
    };
 } // namespace graphics
 

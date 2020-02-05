@@ -42,6 +42,7 @@ RecordingCallback::processRecordingFrames(oboe::AudioStream* audioStream,
 	mDrawData->beat = beatDetector.beatDueInFrame;
 	mDrawData->tempo = beatDetector.estimatedTempo;
 	mDrawData->cumScore = beatDetector.latestCumulativeScoreValue;
+	mDrawData->lastOnset = beatDetector.lastOnset;
 
 	return oboe::DataCallbackResult::Continue;
 }
