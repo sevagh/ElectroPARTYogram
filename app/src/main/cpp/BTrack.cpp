@@ -14,6 +14,66 @@ static void adaptiveThreshold(float* x, size_t N);
 static void normalizeArray(float* x, size_t N);
 
 namespace btrack {
+BTrack::BTrack(int sampleRate)
+		: sampleRate(sampleRate)
+		, acfFFT(ne10_fft_alloc_c2c_float32_neon(FFTLengthForACFCalculation))
+		, tempoToLagFactor(60.0F * (( float )sampleRate) / ( float )HopSize)
+		, latestCumulativeScoreValue(0.0F)
+		, lastOnset(0.0F)
+		, odf(OnsetDetectionFunction())
+		, beatPeriod(roundf(
+				60.0F / (((( float )HopSize) / ( float )sampleRate) * 120.0F)))
+		, m0(10)
+		, beatCounter(-1)
+		, discardSamples(sampleRate / 2)
+		, beatDueInFrame(false)
+		, estimatedTempo(120.0F)
+		, currentFrame((float*)malloc(FrameSize*sizeof(float)))
+{
+	exit = new std::atomic_bool;
+	notifiedFromCallback = new std::condition_variable;
+	std::fill(prevDelta.begin(), prevDelta.end(), 1.0F);
+
+	// initialise df_buffer
+	for (size_t i = 0; i < OnsetDFBufferSize; ++i) {
+		if ((i % (( size_t )round(beatPeriod)))
+			== 0) { // TODO faster modulo
+			onsetDF[i] = 1.0F;
+		}
+	}
+};
+
+BTrack::~BTrack()
+{
+	// destroy FFT things here
+	ne10_fft_destroy_c2c_float32(acfFFT);
+	delete exit;
+	delete notifiedFromCallback;
+	free(currentFrame);
+};
+
+void BTrack::copyFrameAndNotify(std::vector<float> samples) {
+	currentFrameVec = std::move(samples);
+	notifiedFromCallback->notify_one();
+}
+
+void BTrack::exitThread() {
+	exit->store(true);
+}
+
+void BTrack::processFrames()
+{
+	std::mutex mtx;
+	std::unique_lock<std::mutex> lock{ mtx };
+	while (!exit->load()) {
+		notifiedFromCallback->wait(lock);
+		memcpy(currentFrame, currentFrameVec.data(), FrameSize*sizeof(float));
+		float sample = odf.calculate_sample(currentFrameVec);
+		lastOnset = sample;
+		processOnsetDetectionFunctionSample(sample);
+	}
+};
+
 void BTrack::processOnsetDetectionFunctionSample(float sample)
 {
 	sample = fabs(sample) + Epsilon;
@@ -285,67 +345,6 @@ void BTrack::calculateBalancedACF(
 	}
 };
 
-BTrack::BTrack(
-	int sampleRate,
-	OnsetDetectionFunctionType onsetType)
-	: sampleRate(sampleRate)
-	, acfFFT(ne10_fft_alloc_c2c_float32_neon(FFTLengthForACFCalculation))
-	, tempoToLagFactor(60.0F * (( float )sampleRate) / ( float )HopSize)
-	, latestCumulativeScoreValue(0.0F)
-	, lastOnset(0.0F)
-	, odf(OnsetDetectionFunction(onsetType))
-	, beatPeriod(roundf(
-		  60.0F / (((( float )HopSize) / ( float )sampleRate) * 120.0F)))
-	, m0(10)
-	, beatCounter(-1)
-	, discardSamples(sampleRate / 2)
-	, beatDueInFrame(false)
-	, estimatedTempo(120.0F)
-	, currentFrame((float*)malloc(FrameSize*sizeof(float)))
-{
-    exit = new std::atomic_bool;
-    notifiedFromCallback = new std::condition_variable;
-	std::fill(prevDelta.begin(), prevDelta.end(), 1.0F);
-
-	// initialise df_buffer
-	for (size_t i = 0; i < OnsetDFBufferSize; ++i) {
-		if ((i % (( size_t )round(beatPeriod)))
-			== 0) { // TODO faster modulo
-			onsetDF[i] = 1.0F;
-		}
-	}
-};
-
-BTrack::~BTrack()
-{
-	// destroy FFT things here
-	ne10_fft_destroy_c2c_float32(acfFFT);
-	delete exit;
-	delete notifiedFromCallback;
-	free(currentFrame);
-};
-
-void BTrack::copyFrameAndNotify(std::vector<float> samples) {
-    currentFrameVec = std::move(samples);
-    notifiedFromCallback->notify_one();
-}
-
-void BTrack::exitThread() {
-	exit->store(true);
-}
-
-void BTrack::processFrames()
-{
-	std::mutex mtx;
-	std::unique_lock<std::mutex> lock{ mtx };
-	while (!exit->load()) {
-		notifiedFromCallback->wait(lock);
-		memcpy(currentFrame, currentFrameVec.data(), FrameSize*sizeof(float));
-		float sample = odf.calculate_sample(currentFrameVec);
-		lastOnset = sample;
-		processOnsetDetectionFunctionSample(sample);
-	}
-};
 } // namespace btrack
 
 static void normalizeArray(float* x, size_t N)

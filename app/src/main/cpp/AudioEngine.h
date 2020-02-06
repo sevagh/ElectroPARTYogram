@@ -1,10 +1,6 @@
 #ifndef ELECTROPARTYOGRAM_AUDIOENGINE_H
 #define ELECTROPARTYOGRAM_AUDIOENGINE_H
 
-#ifndef MODULE_NAME
-#define MODULE_NAME "AudioEngine"
-#endif
-
 #include "DrawParams.h"
 #include "RecordingCallback.h"
 #include "logging_macros.h"

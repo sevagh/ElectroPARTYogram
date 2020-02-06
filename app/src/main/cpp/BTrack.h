@@ -66,9 +66,7 @@ public:
 	CircularBuffer<OnsetDFBufferSize> cumulativeScore
 			= {};
 
-	explicit BTrack(
-	    int sampleRate,
-	    OnsetDetectionFunctionType onsetType);
+	explicit BTrack(int sampleRate);
 	~BTrack();
 
 	void exitThread();

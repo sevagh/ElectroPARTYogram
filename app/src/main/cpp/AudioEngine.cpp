@@ -117,8 +117,5 @@ AudioEngine::setUpRecordingStreamParameters(oboe::AudioStreamBuilder* builder)
 
 const DrawParams* AudioEngine::GetDrawParams()
 {
-	LOGI("2.1 audioEngine about to be getting drawParams");
-	auto ret = recordingCallback.GetDrawParams();
-	LOGI("2. audioEngine drawParams: %s %f %f", ret.beat? "true" : "false", ret.tempo, ret.cumScore);
-	return ret;
+	return recordingCallback.GetDrawParams();
 }

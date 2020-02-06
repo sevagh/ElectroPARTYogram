@@ -26,8 +26,7 @@ public:
 	btrack::BTrack beatDetector;
 
 	explicit RecordingCallback(int32_t sampleRate)
-	    : beatDetector(btrack::BTrack(sampleRate,
-	    		btrack::OnsetDetectionFunctionType::ComplexSpectralDifferenceHWR))
+	    : beatDetector(btrack::BTrack(sampleRate))
 		, sampleAccumulator(btrack::BTrack::FrameSize)
 		, mDrawData((DrawParams*) malloc(sizeof(DrawParams)))
 		, nWritten(0){
