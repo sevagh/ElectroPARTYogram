@@ -31,10 +31,8 @@ RecordingCallback::processRecordingFrames(oboe::AudioStream* audioStream,
 
 	// if we have enough data to BeatTrack, do it in the background
 	if (nWritten >= btrack::BTrack::FrameSize) {
-		std::thread(
-				&btrack::BTrack::processCurrentFrame,
-				std::ref(beatDetector), sampleAccumulator)
-				.detach();
+
+		beatDetector.copyFrameAndNotify(sampleAccumulator);
 		nWritten = btrack::BTrack::FrameSize - nWritten;
 	}
 

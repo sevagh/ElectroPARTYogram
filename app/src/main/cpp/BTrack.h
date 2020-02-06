@@ -32,6 +32,8 @@ private:
 	int beatCounter;
 
 	int discardSamples;
+	std::atomic_bool *exit;
+	std::condition_variable *notifiedFromCallback;
 
 	std::array<float, 512> acf = {};
 	std::array<float, 128> combFilterBankOutput = {};
@@ -53,6 +55,7 @@ public:
 	bool beatDueInFrame;
 	float estimatedTempo;
     float latestCumulativeScoreValue;
+    std::vector<float> currentFrameVec;
     float lastOnset;
     float *currentFrame;
 
@@ -68,7 +71,9 @@ public:
 	    OnsetDetectionFunctionType onsetType);
 	~BTrack();
 
-	void processCurrentFrame(std::vector<float> samples);
+	void exitThread();
+	void copyFrameAndNotify(std::vector<float> samples);
+	void processFrames();
 };
 } // namespace btrack
 

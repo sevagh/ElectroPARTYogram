@@ -8,6 +8,7 @@
 #include <oboe/AudioStream.h>
 #include <oboe/Definitions.h>
 #include <optional>
+#include <thread>
 
 #ifndef MODULE_NAME
 #define MODULE_NAME "RecordingCallback"
@@ -19,6 +20,7 @@ private:
 	DrawParams *mDrawData;
 	std::vector<float> sampleAccumulator;
 	size_t nWritten;
+	std::thread *btrackTHandle;
 
 public:
 	btrack::BTrack beatDetector;
@@ -28,9 +30,18 @@ public:
 	    		btrack::OnsetDetectionFunctionType::ComplexSpectralDifferenceHWR))
 		, sampleAccumulator(btrack::BTrack::FrameSize)
 		, mDrawData((DrawParams*) malloc(sizeof(DrawParams)))
-		, nWritten(0){};
+		, nWritten(0){
+
+	    // btrack always running in the background
+		btrackTHandle = new std::thread(
+				&btrack::BTrack::processFrames,
+				std::ref(beatDetector));
+	};
 
 	~RecordingCallback() {
+	    beatDetector.exitThread();
+	    btrackTHandle->join();
+	    delete btrackTHandle;
 		free(mDrawData);
 	}
 

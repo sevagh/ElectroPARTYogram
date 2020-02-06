@@ -303,6 +303,8 @@ BTrack::BTrack(
 	, estimatedTempo(120.0F)
 	, currentFrame((float*)malloc(FrameSize*sizeof(float)))
 {
+    exit = new std::atomic_bool;
+    notifiedFromCallback = new std::condition_variable;
 	std::fill(prevDelta.begin(), prevDelta.end(), 1.0F);
 
 	// initialise df_buffer
@@ -318,15 +320,31 @@ BTrack::~BTrack()
 {
 	// destroy FFT things here
 	ne10_fft_destroy_c2c_float32(acfFFT);
+	delete exit;
+	delete notifiedFromCallback;
 	free(currentFrame);
 };
 
-void BTrack::processCurrentFrame(std::vector<float> samples)
+void BTrack::copyFrameAndNotify(std::vector<float> samples) {
+    currentFrameVec = std::move(samples);
+    notifiedFromCallback->notify_one();
+}
+
+void BTrack::exitThread() {
+	exit->store(true);
+}
+
+void BTrack::processFrames()
 {
-	memcpy(currentFrame, samples.data(), FrameSize*sizeof(float));
-	float sample = odf.calculate_sample(samples);
-	lastOnset = sample;
-	processOnsetDetectionFunctionSample(sample);
+	std::mutex mtx;
+	std::unique_lock<std::mutex> lock{ mtx };
+	while (!exit->load()) {
+		notifiedFromCallback->wait(lock);
+		memcpy(currentFrame, currentFrameVec.data(), FrameSize*sizeof(float));
+		float sample = odf.calculate_sample(currentFrameVec);
+		lastOnset = sample;
+		processOnsetDetectionFunctionSample(sample);
+	}
 };
 } // namespace btrack
 
