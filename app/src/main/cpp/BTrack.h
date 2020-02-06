@@ -35,6 +35,7 @@ private:
 	std::atomic_bool *exit;
 	std::condition_variable *notifiedFromCallback;
 
+	std::array<float, OnsetDFBufferSize> w1 = {};
 	std::array<float, 512> acf = {};
 	std::array<float, 128> combFilterBankOutput = {};
 	std::array<float, 41> tempoObservationVector = {};

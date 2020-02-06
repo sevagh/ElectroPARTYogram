@@ -95,22 +95,9 @@ void BTrack::processOnsetDetectionFunctionSample(float sample)
 	}
 };
 
-void BTrack::updateCumulativeScore(float odfSample)
-{
-	size_t start;
-	size_t end;
-	size_t winsize;
-	float max;
-
-	start = (size_t)(OnsetDFBufferSize - roundf(2.0F * beatPeriod));
-	end = (size_t)(OnsetDFBufferSize - roundf(beatPeriod / 2.0F));
-
-	winsize = end - start + 1;
-
-	float w1[winsize];
+void createWindow(std::array<float, 512> &w1, std::size_t start, std::size_t end, float beatPeriod, float Tightness ){
 	float v = -2.0F * beatPeriod;
-	float wcumscore;
-
+	std::size_t winsize = end - start + 1;
 	// create window
 	for (size_t i = 0; i < winsize; ++i) {
 		// TODO replace with faster MathNeon computations
@@ -118,13 +105,18 @@ void BTrack::updateCumulativeScore(float odfSample)
 					 / 2.0F);
 		v += 1.0F;
 	}
+}
 
-	max = 0;
-	size_t n = 0;
+void BTrack::updateCumulativeScore(float odfSample)
+{
+	auto start = (size_t)(OnsetDFBufferSize - roundf(2.0F * beatPeriod));
+	auto end = (size_t)(OnsetDFBufferSize - roundf(beatPeriod / 2.0F));
+
+	createWindow(w1, start, end, beatPeriod, Tightness);
+
+	float max = 0.0F;
 	for (size_t i = start; i <= end; ++i) {
-		wcumscore = cumulativeScore[i] * w1[n++];
-		if (wcumscore > max)
-			max = wcumscore;
+		max = std::max(cumulativeScore[i] * w1[i-start], max);
 	}
 
 	latestCumulativeScoreValue
@@ -151,28 +143,14 @@ void BTrack::predictBeat()
 		v += 1.0F;
 	}
 
-	// create past window
-	v = -2.0F * beatPeriod;
-	auto start = (size_t)(OnsetDFBufferSize - roundf(2.0F * beatPeriod));
-	auto end = (size_t)(OnsetDFBufferSize - roundf(beatPeriod / 2.0F));
-	size_t pastwinsize = end - start + 1;
-	float w1[pastwinsize];
-
-	// TODO replace logs, exp, power, etc. with MathNeon faster versions
-	for (size_t i = 0; i < pastwinsize; ++i) {
-		w1[i] = expf((-1.0F * powf(Tightness * logf(-v / beatPeriod), 2.0F))
-					 / 2.0F);
-		v = v + 1;
-	}
-
 	// calculate future cumulative score
 	float max;
 	int n;
 	float wcumscore;
 	for (size_t i = OnsetDFBufferSize;
 		 i < (OnsetDFBufferSize + windowSize); ++i) {
-		start = (size_t)(i - roundf(2.0F * beatPeriod));
-		end = (size_t)(i - roundf(beatPeriod / 2.0F));
+		auto start = (size_t)(i - roundf(2.0F * beatPeriod));
+		auto end = (size_t)(i - roundf(beatPeriod / 2.0F));
 
 		max = 0;
 		n = 0;
