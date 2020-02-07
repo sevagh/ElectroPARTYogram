@@ -35,6 +35,8 @@ private:
 	std::condition_variable* notifiedFromCallback;
 
 	std::array<float, OnsetDFBufferSize> w1 = {};
+	std::array<float, 128> w2 = {};
+	std::array<float, OnsetDFBufferSize + 128> futureCumulativeScore = {};
 	std::array<float, 2 * OnsetDFBufferSize> onsetDFContiguous = {};
 	std::array<float, 512> acf = {};
 	std::array<float, 128> combFilterBankOutput = {};

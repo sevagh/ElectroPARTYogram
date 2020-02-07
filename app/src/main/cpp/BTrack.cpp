@@ -13,6 +13,11 @@ static float
 calculateMeanOfArray(const float* array, std::size_t start, std::size_t end);
 static void adaptiveThreshold(float* x, size_t N);
 static void normalizeArray(float* x, size_t N);
+static void createWindow(std::array<float, 512>& w1,
+                         std::size_t start,
+                         std::size_t end,
+                         float beatPeriod,
+                         float Tightness);
 
 namespace btrack {
 BTrack::BTrack(int sampleRate)
@@ -95,23 +100,6 @@ void BTrack::processOnsetDetectionFunctionSample(float sample)
 	}
 };
 
-void createWindow(std::array<float, 512>& w1,
-                  std::size_t start,
-                  std::size_t end,
-                  float beatPeriod,
-                  float Tightness)
-{
-	float v = -2.0F * beatPeriod;
-	std::size_t winsize = end - start + 1;
-	// create window
-	for (size_t i = 0; i < winsize; ++i) {
-		// TODO replace with faster MathNeon computations
-		w1[i]
-		    = expf((-1 * powf(Tightness * logf(-v / beatPeriod), 2.0F)) / 2.0F);
-		v += 1.0F;
-	}
-}
-
 void BTrack::updateCumulativeScore(float odfSample)
 {
 	auto start = (size_t)(OnsetDFBufferSize - roundf(2.0F * beatPeriod));
@@ -131,8 +119,6 @@ void BTrack::updateCumulativeScore(float odfSample)
 void BTrack::predictBeat()
 {
 	auto windowSize = ( size_t )beatPeriod;
-	float futureCumulativeScore[OnsetDFBufferSize + windowSize];
-	float w2[windowSize];
 
 	// copy cumscore to first part of fcumscore
 	for (size_t i = 0; i < OnsetDFBufferSize; ++i) {
@@ -159,6 +145,7 @@ void BTrack::predictBeat()
 		max = 0;
 		n = 0;
 		for (size_t k = start; k <= end; ++k) {
+			// use the same w1 calculated previously
 			wcumscore = futureCumulativeScore[k] * w1[n];
 
 			if (wcumscore > max) {
@@ -218,19 +205,15 @@ void BTrack::calculateTempo()
 		                            + combFilterBankOutput[t_index2 - 1];
 	}
 
-	float maxval;
 	float maxind;
-	float curval;
 
+	float maxval;
 	for (size_t j = 0; j < 41; ++j) {
-		maxval = -1;
-		for (size_t i = 0; i < 41; ++i) {
-			curval = prevDelta[i] * precomputed::TempoTransitionMatrix[i][j];
-
-			if (curval > maxval) {
-				maxval = curval;
-			}
-		}
+		maxval = -1.0F;
+		for (size_t i = 0; i < 41; ++i)
+			maxval = std::max(
+			    prevDelta[i] * precomputed::TempoTransitionMatrix[i][j],
+			    maxval);
 
 		delta[j] = maxval * tempoObservationVector[j];
 	}
@@ -325,12 +308,14 @@ static void normalizeArray(float* x, size_t N)
 	}
 };
 
+// we only call adapativeThreshold on two arrays - N = 1024, N = 128
+static std::array<float, 1024> x_thresh = {};
+
 static void adaptiveThreshold(float* x, size_t N)
 {
 	std::size_t i = 0;
 	std::size_t k = 0;
 	std::size_t t = 0;
-	float x_thresh[N];
 
 	std::size_t p_post = 7;
 	std::size_t p_pre = 8;
@@ -379,4 +364,21 @@ calculateMeanOfArray(const float* array, std::size_t start, std::size_t end)
 	}
 
 	return (length > 0) ? sum / length : 0;
+}
+
+static void createWindow(std::array<float, 512>& w1,
+                         std::size_t start,
+                         std::size_t end,
+                         float beatPeriod,
+                         float Tightness)
+{
+	float v = -2.0F * beatPeriod;
+	std::size_t winsize = end - start + 1;
+	// create window
+	for (size_t i = 0; i < winsize; ++i) {
+		// TODO replace with faster MathNeon computations
+		w1[i]
+		    = expf((-1 * powf(Tightness * logf(-v / beatPeriod), 2.0F)) / 2.0F);
+		v += 1.0F;
+	}
 }

@@ -83,7 +83,7 @@ namespace detail {
 			    = 0.5F
 			      * (1.0F
 			         + gcem::cos(PI
-			                     * (-2.0F / alpha + 1.0
+			                     * (-2.0F / alpha + 1.0F
 			                        + 2.0F * (( float )n) / alpha / N)));
 		}
 

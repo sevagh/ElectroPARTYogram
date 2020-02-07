@@ -109,11 +109,6 @@ void graphics::GraphicsLoop::createBeatTrackArt(const DrawParams* draw)
 
 	mainWindow.draw(circle);
 	timer--;
-
-	if (drawBeat) {
-		LOGI("BEAT ONSET: %f %f %f", draw->lastOnset, draw->tempo,
-		     draw->cumScore);
-	}
 }
 
 void graphics::GraphicsLoop::createFingerArt(const float x, const float y)
