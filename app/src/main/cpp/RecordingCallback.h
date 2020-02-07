@@ -2,8 +2,8 @@
 #define ELECTROPARTYOGRAM_RECORDINGCALLBACK_H
 
 #include "BTrack.h"
-#include "OnsetDetection.h"
 #include "DrawParams.h"
+#include "OnsetDetection.h"
 #include "logging_macros.h"
 #include <oboe/AudioStream.h>
 #include <oboe/Definitions.h>
@@ -17,30 +17,31 @@
 class RecordingCallback : public oboe::AudioStreamCallback {
 
 private:
-	DrawParams *mDrawData;
+	DrawParams* mDrawData;
 	std::vector<float> sampleAccumulator;
 	size_t nWritten;
-	std::thread *btrackTHandle;
+	std::thread* btrackTHandle;
 
 public:
 	btrack::BTrack beatDetector;
 
 	explicit RecordingCallback(int32_t sampleRate)
 	    : beatDetector(btrack::BTrack(sampleRate))
-		, sampleAccumulator(btrack::BTrack::FrameSize)
-		, mDrawData((DrawParams*) malloc(sizeof(DrawParams)))
-		, nWritten(0){
+	    , sampleAccumulator(btrack::BTrack::FrameSize)
+	    , mDrawData(( DrawParams* )malloc(sizeof(DrawParams)))
+	    , nWritten(0)
+	{
 
-	    // btrack always running in the background
+		// btrack always running in the background
 		btrackTHandle = new std::thread(
-				&btrack::BTrack::processFrames,
-				std::ref(beatDetector));
+		    &btrack::BTrack::processFrames, std::ref(beatDetector));
 	};
 
-	~RecordingCallback() {
-	    beatDetector.exitThread();
-	    btrackTHandle->join();
-	    delete btrackTHandle;
+	~RecordingCallback()
+	{
+		beatDetector.exitThread();
+		btrackTHandle->join();
+		delete btrackTHandle;
 		free(mDrawData);
 	}
 

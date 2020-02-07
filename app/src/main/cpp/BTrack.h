@@ -20,11 +20,10 @@ private:
 
 	int sampleRate;
 
-	std::array<ne10_fft_cpx_float32_t, FFTLengthForACFCalculation> complexIn
-	    = {};
 	std::array<ne10_fft_cpx_float32_t, FFTLengthForACFCalculation> complexOut
 	    = {};
-	ne10_fft_cfg_float32_t acfFFT;
+	ne10_fft_cfg_float32_t acfIFFT;
+	ne10_fft_r2c_cfg_float32_t acfFFT;
 
 	float tempoToLagFactor;
 	float beatPeriod;
@@ -32,10 +31,11 @@ private:
 	int beatCounter;
 
 	int discardSamples;
-	std::atomic_bool *exit;
-	std::condition_variable *notifiedFromCallback;
+	std::atomic_bool* exit;
+	std::condition_variable* notifiedFromCallback;
 
 	std::array<float, OnsetDFBufferSize> w1 = {};
+	std::array<float, 2 * OnsetDFBufferSize> onsetDFContiguous = {};
 	std::array<float, 512> acf = {};
 	std::array<float, 128> combFilterBankOutput = {};
 	std::array<float, 41> tempoObservationVector = {};
@@ -47,7 +47,7 @@ private:
 	void predictBeat();
 	void calculateTempo();
 	void calculateOutputOfCombFilterBank();
-	void calculateBalancedACF(std::array<float, OnsetDFBufferSize>& onsetDetectionFunction);
+	void calculateBalancedACF();
 
 public:
 	static constexpr std::size_t FrameSize = 1024;
@@ -55,17 +55,15 @@ public:
 
 	bool beatDueInFrame;
 	float estimatedTempo;
-    float latestCumulativeScoreValue;
-    std::vector<float> currentFrameVec;
-    float lastOnset;
-    float *currentFrame;
+	float latestCumulativeScoreValue;
+	std::vector<float> currentFrameVec;
+	float lastOnset;
+	float* currentFrame;
 
 	OnsetDetectionFunction odf;
 
-	CircularBuffer<OnsetDFBufferSize> onsetDF
-			= {};
-	CircularBuffer<OnsetDFBufferSize> cumulativeScore
-			= {};
+	CircularBuffer<OnsetDFBufferSize> onsetDF = {};
+	CircularBuffer<OnsetDFBufferSize> cumulativeScore = {};
 
 	explicit BTrack(int sampleRate);
 	~BTrack();

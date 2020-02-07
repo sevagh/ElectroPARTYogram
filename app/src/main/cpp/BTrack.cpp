@@ -3,32 +3,34 @@
 #include "CircularBuffer.h"
 #include "NE10.h"
 #include "OnsetDetection.h"
+#include "logging_macros.h"
 #include <array>
 #include <complex>
 #include <cstddef>
 #include <vector>
-#include "logging_macros.h"
 
-static float calculateMeanOfArray(const float* array, std::size_t start, std::size_t end);
+static float
+calculateMeanOfArray(const float* array, std::size_t start, std::size_t end);
 static void adaptiveThreshold(float* x, size_t N);
 static void normalizeArray(float* x, size_t N);
 
 namespace btrack {
 BTrack::BTrack(int sampleRate)
-		: sampleRate(sampleRate)
-		, acfFFT(ne10_fft_alloc_c2c_float32_neon(FFTLengthForACFCalculation))
-		, tempoToLagFactor(60.0F * (( float )sampleRate) / ( float )HopSize)
-		, latestCumulativeScoreValue(0.0F)
-		, lastOnset(0.0F)
-		, odf(OnsetDetectionFunction())
-		, beatPeriod(roundf(
-				60.0F / (((( float )HopSize) / ( float )sampleRate) * 120.0F)))
-		, m0(10)
-		, beatCounter(-1)
-		, discardSamples(sampleRate / 2)
-		, beatDueInFrame(false)
-		, estimatedTempo(120.0F)
-		, currentFrame((float*)malloc(FrameSize*sizeof(float)))
+    : sampleRate(sampleRate)
+    , acfIFFT(ne10_fft_alloc_c2c_float32_neon(FFTLengthForACFCalculation))
+    , acfFFT(ne10_fft_alloc_r2c_float32(FFTLengthForACFCalculation))
+    , tempoToLagFactor(60.0F * (( float )sampleRate) / ( float )HopSize)
+    , latestCumulativeScoreValue(0.0F)
+    , lastOnset(0.0F)
+    , odf(OnsetDetectionFunction())
+    , beatPeriod(
+          roundf(60.0F / (((( float )HopSize) / ( float )sampleRate) * 120.0F)))
+    , m0(10)
+    , beatCounter(-1)
+    , discardSamples(sampleRate / 2)
+    , beatDueInFrame(false)
+    , estimatedTempo(120.0F)
+    , currentFrame(( float* )malloc(FrameSize * sizeof(float)))
 {
 	exit = new std::atomic_bool;
 	notifiedFromCallback = new std::condition_variable;
@@ -36,8 +38,7 @@ BTrack::BTrack(int sampleRate)
 
 	// initialise df_buffer
 	for (size_t i = 0; i < OnsetDFBufferSize; ++i) {
-		if ((i % (( size_t )round(beatPeriod)))
-			== 0) { // TODO faster modulo
+		if ((i % (( size_t )round(beatPeriod))) == 0) { // TODO faster modulo
 			onsetDF[i] = 1.0F;
 		}
 	}
@@ -46,28 +47,28 @@ BTrack::BTrack(int sampleRate)
 BTrack::~BTrack()
 {
 	// destroy FFT things here
-	ne10_fft_destroy_c2c_float32(acfFFT);
+	ne10_fft_destroy_c2c_float32(acfIFFT);
+	ne10_fft_destroy_r2c_float32(acfFFT);
 	delete exit;
 	delete notifiedFromCallback;
 	free(currentFrame);
 };
 
-void BTrack::copyFrameAndNotify(std::vector<float> samples) {
+void BTrack::copyFrameAndNotify(std::vector<float> samples)
+{
 	currentFrameVec = std::move(samples);
 	notifiedFromCallback->notify_one();
 }
 
-void BTrack::exitThread() {
-	exit->store(true);
-}
+void BTrack::exitThread() { exit->store(true); }
 
 void BTrack::processFrames()
 {
 	std::mutex mtx;
-	std::unique_lock<std::mutex> lock{ mtx };
+	std::unique_lock<std::mutex> lock{mtx};
 	while (!exit->load()) {
 		notifiedFromCallback->wait(lock);
-		memcpy(currentFrame, currentFrameVec.data(), FrameSize*sizeof(float));
+		memcpy(currentFrame, currentFrameVec.data(), FrameSize * sizeof(float));
 		float sample = odf.calculate_sample(currentFrameVec);
 		lastOnset = sample;
 		processOnsetDetectionFunctionSample(sample);
@@ -90,19 +91,23 @@ void BTrack::processOnsetDetectionFunctionSample(float sample)
 
 	if (beatCounter == 0) {
 		beatDueInFrame = true;
-		// resampleOnsetDetectionFunction();
 		calculateTempo();
 	}
 };
 
-void createWindow(std::array<float, 512> &w1, std::size_t start, std::size_t end, float beatPeriod, float Tightness ){
+void createWindow(std::array<float, 512>& w1,
+                  std::size_t start,
+                  std::size_t end,
+                  float beatPeriod,
+                  float Tightness)
+{
 	float v = -2.0F * beatPeriod;
 	std::size_t winsize = end - start + 1;
 	// create window
 	for (size_t i = 0; i < winsize; ++i) {
 		// TODO replace with faster MathNeon computations
-		w1[i] = expf((-1 * powf(Tightness * logf(-v / beatPeriod), 2.0F))
-					 / 2.0F);
+		w1[i]
+		    = expf((-1 * powf(Tightness * logf(-v / beatPeriod), 2.0F)) / 2.0F);
 		v += 1.0F;
 	}
 }
@@ -116,11 +121,10 @@ void BTrack::updateCumulativeScore(float odfSample)
 
 	float max = 0.0F;
 	for (size_t i = start; i <= end; ++i) {
-		max = std::max(cumulativeScore[i] * w1[i-start], max);
+		max = std::max(cumulativeScore[i] * w1[i - start], max);
 	}
 
-	latestCumulativeScoreValue
-		= ((1.0F - Alpha) * odfSample) + (Alpha * max);
+	latestCumulativeScoreValue = ((1.0F - Alpha) * odfSample) + (Alpha * max);
 	cumulativeScore.append(latestCumulativeScoreValue);
 };
 
@@ -139,7 +143,7 @@ void BTrack::predictBeat()
 	float v = 1.0F;
 	for (size_t i = 0; i < windowSize; ++i) {
 		w2[i] = expf((-1.0F * powf((v - (beatPeriod / 2.0F)), 2.0F))
-					 / (2.0F * powf((beatPeriod / 2.0F), 2.0F)));
+		             / (2.0F * powf((beatPeriod / 2.0F), 2.0F)));
 		v += 1.0F;
 	}
 
@@ -147,8 +151,8 @@ void BTrack::predictBeat()
 	float max;
 	int n;
 	float wcumscore;
-	for (size_t i = OnsetDFBufferSize;
-		 i < (OnsetDFBufferSize + windowSize); ++i) {
+	for (size_t i = OnsetDFBufferSize; i < (OnsetDFBufferSize + windowSize);
+	     ++i) {
 		auto start = (size_t)(i - roundf(2.0F * beatPeriod));
 		auto end = (size_t)(i - roundf(beatPeriod / 2.0F));
 
@@ -170,8 +174,8 @@ void BTrack::predictBeat()
 	max = 0;
 	n = 0;
 
-	for (size_t i = OnsetDFBufferSize;
-		 i < (OnsetDFBufferSize + windowSize); ++i) {
+	for (size_t i = OnsetDFBufferSize; i < (OnsetDFBufferSize + windowSize);
+	     ++i) {
 		wcumscore = futureCumulativeScore[i] * w2[n];
 
 		if (wcumscore > max) {
@@ -187,30 +191,31 @@ void BTrack::predictBeat()
 
 void BTrack::calculateTempo()
 {
+	for (size_t i = 0; i < OnsetDFBufferSize; ++i) {
+		onsetDFContiguous[i] = onsetDF[i];
+	}
+
 	// adaptive threshold on input - TODO faster math with MathNeon
-	adaptiveThreshold(onsetDF.buffer.data(), onsetDF.buffer.size());
+	adaptiveThreshold(onsetDFContiguous.data(), onsetDFContiguous.size());
 
 	// calculate auto-correlation function of detection function
-	calculateBalancedACF(onsetDF.buffer);
+	calculateBalancedACF();
 
 	// calculate output of comb filterbank - TODO faster math with MathNeon
 	calculateOutputOfCombFilterBank();
 
 	// adaptive threshold on rcf
-	adaptiveThreshold(
-		combFilterBankOutput.data(), combFilterBankOutput.size());
+	adaptiveThreshold(combFilterBankOutput.data(), combFilterBankOutput.size());
 
 	size_t t_index;
 	size_t t_index2;
 	// calculate tempo observation vector from beat period observation vector
 	for (size_t i = 0; i < 41; ++i) {
-		t_index
-			= ( size_t )roundf(tempoToLagFactor / (((2.0F * i) + 80.0F)));
-		t_index2
-			= ( size_t )roundf(tempoToLagFactor / (((4.0F * i) + 160.0F)));
+		t_index = ( size_t )roundf(tempoToLagFactor / (((2.0F * i) + 80.0F)));
+		t_index2 = t_index / 2;
 
 		tempoObservationVector[i] = combFilterBankOutput[t_index - 1]
-									+ combFilterBankOutput[t_index2 - 1];
+		                            + combFilterBankOutput[t_index2 - 1];
 	}
 
 	float maxval;
@@ -220,8 +225,7 @@ void BTrack::calculateTempo()
 	for (size_t j = 0; j < 41; ++j) {
 		maxval = -1;
 		for (size_t i = 0; i < 41; ++i) {
-			curval = prevDelta[i]
-					 * precomputed::TempoTransitionMatrix[i][j];
+			curval = prevDelta[i] * precomputed::TempoTransitionMatrix[i][j];
 
 			if (curval > maxval) {
 				maxval = curval;
@@ -246,80 +250,59 @@ void BTrack::calculateTempo()
 	}
 
 	beatPeriod = roundf((60.0F * (( float )sampleRate))
-						/ (((2.0F * maxind) + 80.0F) * (( float )HopSize)));
+	                    / (((2.0F * maxind) + 80.0F) * (( float )HopSize)));
 
 	if (beatPeriod > 0) {
 		estimatedTempo
-			= 60.0F
-			  / (((( float )HopSize) / (( float )sampleRate)) * beatPeriod);
+		    = 60.0F
+		      / (((( float )HopSize) / (( float )sampleRate)) * beatPeriod);
 	}
 };
 
 void BTrack::calculateOutputOfCombFilterBank()
 {
-	std::fill(
-		combFilterBankOutput.begin(), combFilterBankOutput.end(), 0.0F);
+	std::fill(combFilterBankOutput.begin(), combFilterBankOutput.end(), 0.0F);
 
 	for (int i = 2; i <= 127; ++i) {   // max beat period
 		for (int a = 1; a <= 4; ++a) { // number of comb elements
-			for (int b = 1 - a;
-				 b <= a - 1; ++b) { // general state using normalisation of
-									// comb elements
+			for (int b = 1 - a; b <= a - 1;
+			     ++b) { // general state using normalisation of
+				        // comb elements
 				combFilterBankOutput[i - 1]
-					= combFilterBankOutput[i - 1]
-					  + (acf[(a * i + b) - 1]
-						 * precomputed::RayleighWeightingVector128[i - 1])
-							/ (2 * a - 1); // calculate value for comb
-										   // filter row
+				    = combFilterBankOutput[i - 1]
+				      + (acf[(a * i + b) - 1]
+				         * precomputed::RayleighWeightingVector128[i - 1])
+				            / (2 * a - 1); // calculate value for comb
+				                           // filter row
 			}
 		}
 	}
 };
 
-void BTrack::calculateBalancedACF(
-	std::array<float, OnsetDFBufferSize>& onsetDetectionFunction)
+void BTrack::calculateBalancedACF()
 {
-	// copy 512 samples of onsetDetection into 1024 float
-	for (size_t i = 0; i < OnsetDFBufferSize; ++i) {
-		complexIn[i].r = onsetDetectionFunction[i];
-		complexIn[i].i = 0.0F;
-	}
-
+	// the first 512 samples already contain the onset detection values
 	// zero pad the remaining 512
-	for (size_t i = OnsetDFBufferSize; i < FFTLengthForACFCalculation; ++i) {
-		complexIn[i].r = 0.0F;
-		complexIn[i].i = 0.0F;
-	}
+	std::fill(onsetDFContiguous.begin() + 512, onsetDFContiguous.end(), 0.0F);
 
-	ne10_fft_c2c_1d_float32_neon(
-		complexOut.data(), complexIn.data(), acfFFT, 0);
+	ne10_fft_r2c_1d_float32_neon(
+	    complexOut.data(), onsetDFContiguous.data(), acfFFT);
 
 	// multiply by complex conjugate
 	for (int i = 0; i < FFTLengthForACFCalculation; i++) {
 		complexOut[i].r = complexOut[i].r * complexOut[i].r
-						  + complexOut[i].i * complexOut[i].i;
+		                  + complexOut[i].i * complexOut[i].i;
 		complexOut[i].i = 0.0F;
 	}
 
 	// perform the ifft
 	ne10_fft_c2c_1d_float32_neon(
-		complexIn.data(), complexOut.data(), acfFFT, 1);
-
-	auto lag = ( float )OnsetDFBufferSize;
+	    complexOut.data(), complexOut.data(), acfIFFT, 1);
 
 	for (size_t i = 0; i < OnsetDFBufferSize; i++) {
-		float absValue = sqrtf(complexIn[i].r * complexIn[i].r
-							   + complexIn[i].i * complexIn[i].i);
-
-		// divide by inverse lag to deal with scale bias towards small lags
-		acf[i] = absValue / lag;
-
-		// this division by 1024 is technically unnecessary but it ensures
-		// the algorithm produces exactly the same ACF output as the old
-		// time domain implementation. The time difference is minimal so I
-		// decided to keep it acf[i] = acf[i] / ( float
-		// )FFTLengthForACFCalculation;
-		lag -= 1.0F;
+		acf[i] = std::sqrtf(complexOut[i].r * complexOut[i].r
+		                    + complexOut[i].i * complexOut[i].i)
+		         / ( float )(OnsetDFBufferSize - i);
 	}
 };
 
@@ -352,8 +335,7 @@ static void adaptiveThreshold(float* x, size_t N)
 	std::size_t p_post = 7;
 	std::size_t p_pre = 8;
 
-	t = std::min(
-			N, p_post); // what is smaller, p_post or df size. This is to
+	t = std::min(N, p_post); // what is smaller, p_post or df size. This is to
 	// avoid accessing outside of arrays
 
 	// find threshold for first 't' samples, where a full average cannot be
@@ -385,7 +367,8 @@ static void adaptiveThreshold(float* x, size_t N)
 	}
 };
 
-static float calculateMeanOfArray(const float* array, std::size_t start, std::size_t end)
+static float
+calculateMeanOfArray(const float* array, std::size_t start, std::size_t end)
 {
 	float sum = 0;
 	std::size_t length = end - start;
@@ -397,4 +380,3 @@ static float calculateMeanOfArray(const float* array, std::size_t start, std::si
 
 	return (length > 0) ? sum / length : 0;
 }
-

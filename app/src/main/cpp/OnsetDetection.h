@@ -4,9 +4,9 @@
 #include "NE10.h"
 #include "Window.h"
 #include <array>
-#include <vector>
 #include <cmath>
 #include <cstddef>
+#include <vector>
 
 namespace btrack {
 class OnsetDetectionFunction {
@@ -21,15 +21,16 @@ public:
 	float calculate_sample(std::vector<float>& buffer);
 
 private:
-    static constexpr std::size_t HopSize = 512;
-    static constexpr WindowType windowType = HanningWindow;
+	static constexpr std::size_t HopSize = 512;
+	static constexpr WindowType windowType = HanningWindow;
 	void perform_FFT();
 	float complex_spectral_difference_hwr();
 
 	// compute windows at compile time
-	static constexpr Window<FrameSize> window = get_window<FrameSize, windowType>();
+	static constexpr Window<FrameSize> window
+	    = get_window<FrameSize, windowType>();
 
-    ne10_fft_r2c_cfg_float32_t fftCfg;
+	ne10_fft_r2c_cfg_float32_t fftCfg;
 
 	std::array<float, FrameSize> frame = {};
 	std::array<float, FrameSize> magSpec = {};
