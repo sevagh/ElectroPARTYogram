@@ -13,7 +13,6 @@ public:
 	    : mainWindow(sf::RenderWindow(sf::VideoMode::getDesktopMode(), appName))
 	    , audioEngine(engine)
 	    , focus(true)
-	    , touch(true)
 	    , timer(0)
 	    , view(mainWindow.getDefaultView())
 	    , fftMagOverallMax(-FLT_MAX)
@@ -31,22 +30,17 @@ private:
 	sf::RenderWindow mainWindow;
 	AudioEngine audioEngine;
 	bool focus;
-	bool touch;
-	float touch_pos_1;
-	float touch_pos_2;
 	float fftMagOverallMax;
 	float audioOverallMax;
 	float cumScoreOverallMax;
 	float currentCumScore;
-	float tempo;
-	std::vector<float> beatFftMag;
-	std::vector<float> beatAudioArray;
+	float* fftMagArray;
+	float* audioArray;
 	int timer;
 	sf::View view;
 	sf::Event event;
 
 	void createBeatTrackArt(const DrawParams* draw);
-	void createFingerArt(const float x, const float y);
 };
 } // namespace graphics
 
