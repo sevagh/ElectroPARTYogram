@@ -20,6 +20,8 @@ private:
 
 	int sampleRate;
 
+	std::array<ne10_fft_cpx_float32_t, FFTLengthForACFCalculation> complexIm
+	    = {};
 	std::array<ne10_fft_cpx_float32_t, FFTLengthForACFCalculation> complexOut
 	    = {};
 	ne10_fft_cfg_float32_t acfIFFT;

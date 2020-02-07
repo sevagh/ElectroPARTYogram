@@ -269,18 +269,18 @@ void BTrack::calculateBalancedACF()
 	std::fill(onsetDFContiguous.begin() + 512, onsetDFContiguous.end(), 0.0F);
 
 	ne10_fft_r2c_1d_float32_neon(
-	    complexOut.data(), onsetDFContiguous.data(), acfFFT);
+	    complexIm.data(), onsetDFContiguous.data(), acfFFT);
 
 	// multiply by complex conjugate
 	for (int i = 0; i < FFTLengthForACFCalculation; i++) {
-		complexOut[i].r = complexOut[i].r * complexOut[i].r
-		                  + complexOut[i].i * complexOut[i].i;
-		complexOut[i].i = 0.0F;
+		complexIm[i].r = complexIm[i].r * complexIm[i].r
+		                 + complexIm[i].i * complexIm[i].i;
+		complexIm[i].i = 0.0F;
 	}
 
 	// perform the ifft
 	ne10_fft_c2c_1d_float32_neon(
-	    complexOut.data(), complexOut.data(), acfIFFT, 1);
+	    complexOut.data(), complexIm.data(), acfIFFT, 1);
 
 	for (size_t i = 0; i < OnsetDFBufferSize; i++) {
 		acf[i] = std::sqrtf(complexOut[i].r * complexOut[i].r
