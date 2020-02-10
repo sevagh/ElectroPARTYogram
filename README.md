@@ -2,16 +2,29 @@
 
 An electrocardiogram measures and displays a person's heartbeat. :zap: 🎉 ElectroPARTYogram is an Android app that uses real-time beat detection to create digital art synchronized to the rhythm, beats, and tempo of nearby music.
 
-<img src=./.github/beat1.png width="300"> <img src=./.github/beat2.png width="300">
+<img src=./doc/beat1.png width="300"> <img src=./doc/beat2.png width="300">
 
-ElectroPARTYgram could be interesting as:
+### Motivation
+
+ElectroPARTYogram could be interesting as:
 
 * A demonstration of an optimized implementation of [BTrack](https://github.com/adamstark/BTrack), which works well with live music on a budget Android phone
 * A complete example of a modern native Android app using the latest NDK, aarch64/arm64-v8a and NEON SIMD extensions
-* An Oboe + Ne10 project, which might be the building blocks of a modern low-latency audio app for Android
+* A project that combines Oboe and Ne10, which might be the building blocks of a modern low-latency audio DSP app for Android
 * Building and compiling SFML to have access to a huge existing body of tutorials and examples
 
-#### Hacking
+ElectroPARTYogram is a modern incarnation of my oldest side project, [Pitcha](https://github.com/sevagh/Pitcha), a 2015 Android real-time pitch tracking app. The projects share more similarities than differences:
+
+1. Open a real-time stream of input audio data
+2. Perform some DSP algorithm on it (in the 2015 one, pitch tracking - in this one, beat tracking)
+3. Convert the result of the algorithm to a visual/graphical output
+4. Display the results in real-time
+
+### Download
+
+You can download signed arm64-v8a/aarch64 APKs from [the releases page](https://github.com/sevagh/ElectroPARTYogram/releases). I have no app store plans yet, given the experimental nature of this code and my hesitance to provide long-term support.
+
+### Development
 
 ElectroPARTYogram is a mostly native (C++ - some Kotlin for record permission requesting) Android app targeting NDK r20.1.5948944 and an API level >= 24. The only ABI built is arm64-v8a for NEON support. All development and testing was done on my Nokia 6.1. Android Studio (version 3.5.3) was used for all development.
 
