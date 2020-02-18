@@ -16,6 +16,14 @@ In ElectroPARTYogram, my goal was to analyze the rhythm and beat structure of in
 
 ![architecture](./architecture.png)
 
+### Latency estimation
+
+![latency](./latency.png)
+
+* [1] Some typical recording latency measurements for Android phones, https://github.com/google/walt/blob/master/docs/AudioLatency.md#sample-measurements
+* [2] Measured in the code directly
+* [3] Typical 60Hz refresh rate (ElectroPARTYogram enables Vsync with SFML)
+
 ### Art generation rules
 
 The art rules are as follows:

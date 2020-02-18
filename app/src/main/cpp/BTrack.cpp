@@ -73,10 +73,15 @@ void BTrack::processFrames()
 	std::unique_lock<std::mutex> lock{mtx};
 	while (!exit->load()) {
 		notifiedFromCallback->wait(lock);
+		// auto t1 = std::chrono::duration_cast<std::chrono::nanoseconds>(
+		//    std::chrono::steady_clock::now().time_since_epoch());
 		memcpy(currentFrame, currentFrameVec.data(), FrameSize * sizeof(float));
 		float sample = odf.calculate_sample(currentFrameVec);
 		lastOnset = sample;
 		processOnsetDetectionFunctionSample(sample);
+		// auto t2 = std::chrono::duration_cast<std::chrono::nanoseconds>(
+		//    std::chrono::steady_clock::now().time_since_epoch());
+		// LOGD("BTrack computation time: %lld", (t2 - t1).count());
 	}
 };
 

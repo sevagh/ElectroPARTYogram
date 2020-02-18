@@ -4,6 +4,8 @@ An electrocardiogram measures and displays a person's heartbeat. :zap: 🎉 Elec
 
 <img src=./doc/beat1.png width="300"> <img src=./doc/beat2.png width="300">
 
+The BTrack code in ElectroPARTYogram takes 0.15ms on average to process a 1024-sample (~20ms @ 48000Hz Fs) frame, so its contribution to the perceptual latency is negligible.
+
 ### Motivation
 
 ElectroPARTYogram could be interesting as:
