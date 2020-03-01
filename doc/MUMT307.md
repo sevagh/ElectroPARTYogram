@@ -6,12 +6,6 @@ This project arose as the analysis counterpart of my synthesis project for MUMT-
 
 In ElectroPARTYogram, my goal was to analyze the rhythm and beat structure of input audio in real-time and generate some form of visual effects based on the results. I decided to use the [BTrack](https://github.com/adamstark/BTrack) real-time beat tracking algorithm as the core of the app.
 
-#### Demo testcases
-
-* https://www.youtube.com/watch?v=H-r8cDEDfKM
-* https://www.youtube.com/watch?v=uM520G3ZMHE
-* https://www.youtube.com/watch?v=Kuzl1aaL2gg
-
 ### Code architecture diagram
 
 ![architecture](./architecture.png)
