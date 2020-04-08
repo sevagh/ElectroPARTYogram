@@ -6,6 +6,21 @@ This project arose as the analysis counterpart of my synthesis project for MUMT-
 
 In ElectroPARTYogram, my goal was to analyze the rhythm and beat structure of input audio in real-time and generate some form of visual effects based on the results. I decided to use the [BTrack](https://github.com/adamstark/BTrack) real-time beat tracking algorithm as the core of the app.
 
+### Examples
+
+Clips were recorded with the following equipment:
+* Nokia 6.1 with Android 10
+* Logitech C720 suspended above the phone, recorded using Gnome Cheese on Linux/Fedora laptop with built-in microphone
+* Playing audio over a Bluetooth speaker
+
+1. Freeland - We Want Your Soul (Radio Edit)
+
+<img src="../example-videos/freeland_we_want_your_soul.webm">
+
+2. Animals as Leaders - The Woven Web
+
+<img src="../example-videos/animals_as_leaders_the_woven_web.webm">
+
 ### Code architecture diagram
 
 ![architecture](./architecture.png)
