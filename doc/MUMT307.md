@@ -15,6 +15,7 @@ Clips were recorded with the following equipment:
 
 1. [Freeland - We Want Your Soul (Radio Edit)](../example-videos/freeland_we_want_your_soul.webm)
 2. [Animals as Leaders - The Woven Web](../example-videos/animals_as_leaders_the_woven_web.webm)
+3. [Roni Size, Bahamadia - New Forms](../example-videos/roni_size_new_forms.webm)
 
 ### Code architecture diagram
 
