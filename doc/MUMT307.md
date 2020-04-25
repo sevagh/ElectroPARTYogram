@@ -6,6 +6,12 @@ This project arose as the analysis counterpart of my synthesis project for MUMT-
 
 In ElectroPARTYogram, my goal was to analyze the rhythm and beat structure of input audio in real-time and generate some form of visual effects based on the results. I decided to use the [BTrack](https://github.com/adamstark/BTrack) real-time beat tracking algorithm as the core of the app.
 
+#### Try it yourself
+
+If you own an Android phone with an ARM v8 processor (if it's recent it should), you can try to install the signed APK I've released on GitHub: https://github.com/sevagh/ElectroPARTYogram/releases/tag/v0.0
+
+Usage: launch the app, allow it audio recording permissions, put your phone near a source of music, and press the play button.
+
 ### Examples
 
 Clips were recorded with the following equipment:
@@ -20,6 +26,44 @@ Clips were recorded with the following equipment:
 ### Code architecture diagram
 
 ![architecture](./architecture.png)
+
+#### Code listing
+
+For grading purposes, the core of the app is written in C++, in the path [`app/src/main/cpp/`](../app/src/main/cpp). One could ignore the surrounding Android ecosystem and get an idea of the implementation of ElectroPARTYogram with standard C++ classes:
+
+```
+sevagh:ElectroPARTYogram $ tree -L 1 app/src/main/cpp/
+app/src/main/cpp/
+|
+├── AndroidMain.cpp       <--- "main" for Android - init audio stream and graphics loop
+|
+├── AudioEngine.cpp       <--- wrapper around Android Oboe real-time audio input
+├── AudioEngine.h
+├── RecordingCallback.cpp <--- accumulate input audio and notify BTrack
+├── RecordingCallback.h
+|
+├── BTrack.cpp            <--- BTrack algorithm files
+├── BTrack.h
+├── BTrackPrecomputed.h
+├── CircularBuffer.h
+├── OnsetDetection.cpp    <--- OnsetDetection is a component of BTrack
+├── OnsetDetection.h
+├── Window.h              <--- compile-time generated window functions (e.g. tukey, blackman, hamming)
+|
+├── DrawParams.h          <--- the "art" object shipped by BTrack to draw
+├── GraphicsLoop.cpp      <--- SFML graphics loop to render art on screen
+├── GraphicsLoop.h
+|
+├── CMakeLists.txt        <--- Android build system
+|
+├── logging_macros.h      <--- various boilerplate, third-party code
+├── gcem
+├── Ne10
+├── oboe
+├── openal
+├── SFML
+└── thirdparty-libs
+```
 
 ### Latency estimation
 
